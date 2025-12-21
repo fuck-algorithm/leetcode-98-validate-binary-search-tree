@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Highlight, themes } from 'prism-react-renderer';
+import { Highlight, themes, Prism } from 'prism-react-renderer';
 import type { ProgrammingLanguage, AlgorithmStep, VariableState } from '../../types';
 import { codeSnippets, getCodeByLanguage } from '../../data/codeSnippets';
 import { getSetting, saveSetting } from '../../utils/indexedDB';
 import './CodePanel.css';
+
+// 添加 Java 和 Go 语言支持
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).Prism = Prism;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import('prismjs/components/prism-java');
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import('prismjs/components/prism-go');
 
 interface CodePanelProps {
   currentStep: AlgorithmStep | null;

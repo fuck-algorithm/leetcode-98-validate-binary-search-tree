@@ -73,10 +73,17 @@ export const buildVisualTree = (
     left: number,
     right: number,
     parent: VisualNode | null,
-    _isNull: boolean = false
+    parentHasThisChild: boolean = true
   ): VisualNode | null => {
+    // 如果不显示NULL节点，且当前节点为空，则返回null
     if (!node && !showNullNodes) return null;
-    if (!node && depth >= treeHeight) return null;
+    
+    // 如果当前节点为空，且父节点没有这个子节点（即不需要显示NULL占位符），则返回null
+    // 只有当父节点存在且该位置确实需要显示NULL时才创建NULL节点
+    if (!node && !parentHasThisChild) return null;
+    
+    // 如果节点为空且深度超过树高度，不再创建更深层的NULL节点
+    if (!node && depth > treeHeight) return null;
     
     const x = (left + right) / 2;
     const y = (depth + 1) * levelHeight;
@@ -94,14 +101,16 @@ export const buildVisualTree = (
     };
     
     if (node) {
-      visualNode.left = buildNode(node.left, depth + 1, left, x, visualNode, !node.left);
-      visualNode.right = buildNode(node.right, depth + 1, x, right, visualNode, !node.right);
+      // 对于实际存在的节点，总是尝试创建其子节点（包括NULL子节点）
+      // 只要showNullNodes为true，就应该显示NULL子节点
+      visualNode.left = buildNode(node.left, depth + 1, left, x, visualNode, true);
+      visualNode.right = buildNode(node.right, depth + 1, x, right, visualNode, true);
     }
     
     return visualNode;
   };
   
-  return buildNode(root, 0, 0, width, null);
+  return buildNode(root, 0, 0, width, null, true);
 };
 
 // 获取所有节点（扁平化）

@@ -21,8 +21,8 @@
 }
 
 .code-section {
-  flex: 1;
-  min-width: 320px;
-  max-width: 450px;
+  flex: 1.2;
+  min-width: 380px;
+  max-width: 540px;
   display: flex;
 }
