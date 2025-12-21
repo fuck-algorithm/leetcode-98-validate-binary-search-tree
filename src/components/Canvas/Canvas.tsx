@@ -298,6 +298,8 @@ function getAnnotationBgColor(type: Annotation['type']): string {
   }
 }
 
-function getAnnotationTextColor(_type: Annotation['type']): string {
+function getAnnotationTextColor(type: Annotation['type']): string {
+  // 保留参数以便将来根据类型返回不同颜色
+  void type;
   return '#1a1a2e';
 }

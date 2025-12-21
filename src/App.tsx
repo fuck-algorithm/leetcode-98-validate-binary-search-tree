@@ -26,19 +26,22 @@ function App() {
 
   // 当输入数据变化时，重新构建树和步骤
   useEffect(() => {
-    const tree = buildTreeFromArray(inputData);
-    setTreeData(tree);
-    
-    // 生成算法步骤
-    const newSteps = generateAlgorithmSteps(tree, 600, 350);
-    setSteps(newSteps);
-    
-    setPlaybackState(prev => ({
-      ...prev,
-      currentStep: 0,
-      totalSteps: newSteps.length,
-      isPlaying: false,
-    }));
+    // 使用 queueMicrotask 避免在 effect 中同步调用 setState
+    queueMicrotask(() => {
+      const tree = buildTreeFromArray(inputData);
+      setTreeData(tree);
+      
+      // 生成算法步骤
+      const newSteps = generateAlgorithmSteps(tree, 600, 350);
+      setSteps(newSteps);
+      
+      setPlaybackState(prev => ({
+        ...prev,
+        currentStep: 0,
+        totalSteps: newSteps.length,
+        isPlaying: false,
+      }));
+    });
     
     // 停止播放
     if (playIntervalRef.current) {
