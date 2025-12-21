@@ -1,0 +1,106 @@
+.canvas-container {
+  position: relative;
+  flex: 1;
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+  border-radius: 8px;
+  border: 1px solid #0f3460;
+  overflow: hidden;
+}
+
+.canvas-controls {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.canvas-btn {
+  padding: 4px 10px;
+  background: rgba(15, 52, 96, 0.8);
+  color: #4fc3f7;
+  border: 1px solid #4fc3f7;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+
+.canvas-btn:hover {
+  background: #4fc3f7;
+  color: #1a1a2e;
+}
+
+.zoom-level {
+  color: #78909c;
+  font-size: 11px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.tree-canvas {
+  display: block;
+  cursor: grab;
+}
+
+.tree-canvas:active {
+  cursor: grabbing;
+}
+
+.step-description {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  padding: 10px 14px;
+  background: rgba(15, 52, 96, 0.95);
+  border-radius: 6px;
+  border: 1px solid #4fc3f7;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.step-number {
+  color: #4fc3f7;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 2px 8px;
+  background: rgba(79, 195, 247, 0.2);
+  border-radius: 4px;
+}
+
+.step-text {
+  color: #e0e0e0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* D3 节点样式 */
+.node circle {
+  transition: all 0.3s ease;
+}
+
+.node.active circle {
+  filter: drop-shadow(0 0 8px rgba(79, 195, 247, 0.6));
+}
+
+.node.null-node circle {
+  opacity: 0.6;
+}
+
+.edge {
+  transition: stroke 0.3s ease;
+}
+
+.annotation text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.call-stack rect {
+  transition: all 0.2s ease;
+}

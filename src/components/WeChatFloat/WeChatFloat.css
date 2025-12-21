@@ -1,0 +1,77 @@
+.wechat-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.float-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #07c160 0%, #06ad56 100%);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(7, 193, 96, 0.4);
+  transition: all 0.3s ease;
+}
+
+.float-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(7, 193, 96, 0.5);
+}
+
+.wechat-icon {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+}
+
+.float-text {
+  color: #fff;
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.qr-popup {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.qr-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.qr-image {
+  width: 180px;
+  height: auto;
+  border-radius: 8px;
+}
+
+.qr-tip {
+  margin: 12px 0 0;
+  color: #333;
+  font-size: 12px;
+  line-height: 1.5;
+}

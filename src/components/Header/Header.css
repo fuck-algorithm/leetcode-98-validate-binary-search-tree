@@ -1,0 +1,155 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-bottom: 1px solid #0f3460;
+  height: 48px;
+  box-sizing: border-box;
+}
+
+.header-left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.header-center {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+.back-link {
+  color: #4fc3f7;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.back-link:hover {
+  color: #81d4fa;
+}
+
+.title-link {
+  text-decoration: none;
+}
+
+.title {
+  color: #fff;
+  font-size: 18px;
+  margin: 0;
+  font-weight: 600;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.title-link:hover .title {
+  color: #4fc3f7;
+}
+
+.thoughts-btn {
+  background: #0f3460;
+  color: #4fc3f7;
+  border: 1px solid #4fc3f7;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.thoughts-btn:hover {
+  background: #4fc3f7;
+  color: #1a1a2e;
+}
+
+.github-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.2s;
+}
+
+.github-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.github-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.star-count {
+  font-size: 13px;
+  color: #ffd700;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid #0f3460;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #4fc3f7;
+}
+
+.thoughts-content {
+  color: #e0e0e0;
+  line-height: 1.6;
+}
+
+.thoughts-content pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  margin: 0;
+  font-size: 14px;
+}

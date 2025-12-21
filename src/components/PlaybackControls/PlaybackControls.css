@@ -1,0 +1,174 @@
+.playback-controls {
+  padding: 10px 16px;
+  background: #16213e;
+  border-top: 1px solid #0f3460;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #0f3460;
+  color: #4fc3f7;
+  border: 1px solid #4fc3f7;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.control-btn:hover:not(:disabled) {
+  background: #4fc3f7;
+  color: #1a1a2e;
+}
+
+.control-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.control-btn .shortcut {
+  font-size: 10px;
+  padding: 2px 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  color: #78909c;
+}
+
+.control-btn:hover:not(:disabled) .shortcut {
+  background: rgba(0, 0, 0, 0.2);
+  color: #1a1a2e;
+}
+
+.play-btn {
+  min-width: 100px;
+}
+
+.reset-btn {
+  background: transparent;
+  border-color: #78909c;
+  color: #78909c;
+}
+
+.reset-btn:hover:not(:disabled) {
+  background: #78909c;
+  color: #1a1a2e;
+}
+
+.step-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #b0bec5;
+}
+
+.current-step {
+  color: #4fc3f7;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: right;
+}
+
+.step-separator {
+  color: #546e7a;
+}
+
+.total-steps {
+  color: #78909c;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.speed-label {
+  color: #78909c;
+  font-size: 12px;
+}
+
+.speed-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.speed-btn {
+  padding: 4px 8px;
+  background: transparent;
+  color: #78909c;
+  border: 1px solid #37474f;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+
+.speed-btn:hover {
+  border-color: #4fc3f7;
+  color: #4fc3f7;
+}
+
+.speed-btn.active {
+  background: #4fc3f7;
+  color: #1a1a2e;
+  border-color: #4fc3f7;
+}
+
+.progress-bar {
+  height: 20px;
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.progress-track {
+  position: relative;
+  height: 8px;
+  background: #37474f;
+  border-radius: 4px;
+  overflow: visible;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4fc3f7, #66bb6a);
+  border-radius: 4px;
+  transition: width 0.1s ease;
+}
+
+.progress-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border: 2px solid #4fc3f7;
+  border-radius: 50%;
+  cursor: grab;
+  transition: transform 0.1s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progress-handle:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.progress-bar:active .progress-handle {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.1);
+}

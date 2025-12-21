@@ -1,0 +1,103 @@
+.code-panel {
+  display: flex;
+  flex-direction: column;
+  background: #1a1a2e;
+  border-radius: 8px;
+  border: 1px solid #0f3460;
+  overflow: hidden;
+  height: 100%;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #16213e;
+  border-bottom: 1px solid #0f3460;
+}
+
+.code-title {
+  color: #b0bec5;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.language-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.lang-tab {
+  padding: 4px 10px;
+  background: transparent;
+  color: #78909c;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+
+.lang-tab:hover {
+  color: #4fc3f7;
+}
+
+.lang-tab.active {
+  background: #0f3460;
+  color: #4fc3f7;
+  border-color: #4fc3f7;
+}
+
+.code-content {
+  flex: 1;
+  overflow: auto;
+  font-family: 'Consolas', 'Monaco', 'Fira Code', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.code-line {
+  display: flex;
+  align-items: flex-start;
+  padding: 1px 0;
+  transition: background 0.2s;
+}
+
+.code-line.highlighted {
+  background: rgba(79, 195, 247, 0.15);
+  border-left: 3px solid #4fc3f7;
+  margin-left: -3px;
+}
+
+.line-number {
+  display: inline-block;
+  width: 28px;
+  text-align: right;
+  padding-right: 12px;
+  color: #546e7a;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.line-content {
+  flex: 1;
+  white-space: pre;
+}
+
+.line-variables {
+  display: flex;
+  gap: 6px;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.variable-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  background: rgba(255, 183, 77, 0.2);
+  color: #ffb74d;
+  border-radius: 3px;
+  font-size: 10px;
+  font-family: 'Consolas', 'Monaco', monospace;
+}

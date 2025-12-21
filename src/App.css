@@ -1,0 +1,28 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0d1b2a;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  min-height: 0;
+}
+
+.canvas-section {
+  flex: 2;
+  display: flex;
+  min-width: 0;
+}
+
+.code-section {
+  flex: 1;
+  min-width: 320px;
+  max-width: 450px;
+  display: flex;
+}
