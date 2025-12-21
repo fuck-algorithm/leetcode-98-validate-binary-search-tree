@@ -48,9 +48,18 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep }) => {
     const nodes = flattenVisualTree(visualRoot);
     const edges = getEdges(visualRoot);
 
+    // 计算树的实际边界，用于居中
+    const xValues = nodes.map(n => n.x);
+    const minX = Math.min(...xValues);
+    const maxX = Math.max(...xValues);
+    const treeWidth = maxX - minX;
+    
+    // 计算水平偏移量，使树居中
+    const centerOffsetX = (innerWidth - treeWidth) / 2 - minX;
+
     // 创建主容器
     const g = svg.append('g')
-      .attr('transform', `translate(${margin.left + transform.x}, ${margin.top + transform.y}) scale(${transform.k})`);
+      .attr('transform', `translate(${margin.left + transform.x + centerOffsetX}, ${margin.top + transform.y}) scale(${transform.k})`);
 
     // 定义箭头标记
     svg.append('defs').append('marker')
