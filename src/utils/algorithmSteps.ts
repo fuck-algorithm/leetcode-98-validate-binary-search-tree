@@ -72,6 +72,12 @@ export const generateAlgorithmSteps = (
         { name: 'root', value: node ? `TreeNode(${node.val})` : 'None', line: 2, language: 'python' },
         { name: 'left', value: formatBound(lower), line: 2, language: 'python' },
         { name: 'right', value: formatBound(upper), line: 2, language: 'python' },
+        { name: 'root', value: node ? `TreeNode(${node.val})` : 'nil', line: 5, language: 'golang' },
+        { name: 'lower', value: formatBound(lower), line: 5, language: 'golang' },
+        { name: 'upper', value: formatBound(upper), line: 5, language: 'golang' },
+        { name: 'root', value: node ? `TreeNode(${node.val})` : 'null', line: 5, language: 'javascript' },
+        { name: 'lower', value: formatBound(lower), line: 5, language: 'javascript' },
+        { name: 'upper', value: formatBound(upper), line: 5, language: 'javascript' },
       ],
       annotations: nodeId ? [{
         nodeId,
@@ -108,6 +114,8 @@ export const generateAlgorithmSteps = (
         variables: [
           { name: 'root', value: 'null', line: 7, language: 'java' },
           { name: 'root', value: 'None', line: 4, language: 'python' },
+          { name: 'root', value: 'nil', line: 6, language: 'golang' },
+          { name: 'root', value: 'null', line: 6, language: 'javascript' },
         ],
         annotations: [],
         callStack: [...callStack],
@@ -133,10 +141,10 @@ export const generateAlgorithmSteps = (
         javascript: [9, 10, 11],
       },
       primaryLine: {
-        java: [11],
-        python: [6],
-        golang: [10],
-        javascript: [10],
+        java: [10],
+        python: [7],
+        golang: [9],
+        javascript: [9],
       },
       variables: [
         { name: 'root.val', value: node.val.toString(), line: 10, language: 'java' },
@@ -144,6 +152,14 @@ export const generateAlgorithmSteps = (
         { name: 'upper', value: formatBound(upper), line: 10, language: 'java' },
         { name: 'inRange', value: inRange.toString(), line: 11, language: 'java' },
         { name: 'x', value: node.val.toString(), line: 7, language: 'python' },
+        { name: 'root.Val', value: node.val.toString(), line: 9, language: 'golang' },
+        { name: 'lower', value: formatBound(lower), line: 9, language: 'golang' },
+        { name: 'upper', value: formatBound(upper), line: 9, language: 'golang' },
+        { name: 'inRange', value: inRange.toString(), line: 10, language: 'golang' },
+        { name: 'root.val', value: node.val.toString(), line: 9, language: 'javascript' },
+        { name: 'lower', value: formatBound(lower), line: 9, language: 'javascript' },
+        { name: 'upper', value: formatBound(upper), line: 9, language: 'javascript' },
+        { name: 'inRange', value: inRange.toString(), line: 10, language: 'javascript' },
       ],
       annotations: [{
         nodeId: nodeId!,
@@ -171,13 +187,15 @@ export const generateAlgorithmSteps = (
           javascript: [9, 10, 11],
         },
         primaryLine: {
-          java: [12],
+          java: [11],
           python: [7],
-          golang: [11],
-          javascript: [11],
+          golang: [10],
+          javascript: [10],
         },
         variables: [
           { name: 'inRange', value: 'false', line: 12, language: 'java' },
+          { name: 'inRange', value: 'false', line: 10, language: 'golang' },
+          { name: 'inRange', value: 'false', line: 10, language: 'javascript' },
         ],
         annotations: [{
           nodeId: nodeId!,
@@ -214,6 +232,10 @@ export const generateAlgorithmSteps = (
         variables: [
           { name: 'new_upper', value: node.val.toString(), line: 13, language: 'java' },
           { name: 'leftResult', value: 'pending', line: 13, language: 'java' },
+          { name: 'new_upper', value: node.val.toString(), line: 12, language: 'golang' },
+          { name: 'leftResult', value: 'pending', line: 12, language: 'golang' },
+          { name: 'new_upper', value: node.val.toString(), line: 12, language: 'javascript' },
+          { name: 'leftResult', value: 'pending', line: 12, language: 'javascript' },
         ],
         annotations: [{
           nodeId: nodeId!,
@@ -251,6 +273,8 @@ export const generateAlgorithmSteps = (
         },
         variables: [
           { name: 'leftResult', value: 'false', line: 13, language: 'java' },
+          { name: 'leftResult', value: 'false', line: 12, language: 'golang' },
+          { name: 'leftResult', value: 'false', line: 12, language: 'javascript' },
         ],
         annotations: [{
           nodeId: nodeId!,
@@ -287,6 +311,10 @@ export const generateAlgorithmSteps = (
         variables: [
           { name: 'new_lower', value: node.val.toString(), line: 14, language: 'java' },
           { name: 'rightResult', value: 'pending', line: 14, language: 'java' },
+          { name: 'new_lower', value: node.val.toString(), line: 13, language: 'golang' },
+          { name: 'rightResult', value: 'pending', line: 13, language: 'golang' },
+          { name: 'new_lower', value: node.val.toString(), line: 13, language: 'javascript' },
+          { name: 'rightResult', value: 'pending', line: 13, language: 'javascript' },
         ],
         annotations: [{
           nodeId: nodeId!,
@@ -327,6 +355,12 @@ export const generateAlgorithmSteps = (
         { name: 'leftResult', value: leftResult.toString(), line: 13, language: 'java' },
         { name: 'rightResult', value: rightResult.toString(), line: 14, language: 'java' },
         { name: 'finalResult', value: finalResult.toString(), line: 13, language: 'java' },
+        { name: 'leftResult', value: leftResult.toString(), line: 12, language: 'golang' },
+        { name: 'rightResult', value: rightResult.toString(), line: 13, language: 'golang' },
+        { name: 'finalResult', value: finalResult.toString(), line: 12, language: 'golang' },
+        { name: 'leftResult', value: leftResult.toString(), line: 12, language: 'javascript' },
+        { name: 'rightResult', value: rightResult.toString(), line: 13, language: 'javascript' },
+        { name: 'finalResult', value: finalResult.toString(), line: 12, language: 'javascript' },
       ],
       annotations: [{
         nodeId: nodeId!,
@@ -362,6 +396,8 @@ export const generateAlgorithmSteps = (
     },
     variables: [
       { name: 'root', value: 'TreeNode(root)', line: 3, language: 'java' },
+      { name: 'root', value: 'TreeNode(root)', line: 2, language: 'golang' },
+      { name: 'root', value: 'TreeNode(root)', line: 2, language: 'javascript' },
     ],
     annotations: [],
     callStack: [],
@@ -387,11 +423,13 @@ export const generateAlgorithmSteps = (
     primaryLine: {
       java: [3],
       python: [2],
-      golang: [1],
+      golang: [2],
       javascript: [1],
     },
     variables: [
       { name: 'result', value: result.toString(), line: 3, language: 'java' },
+      { name: 'result', value: result.toString(), line: 2, language: 'golang' },
+      { name: 'result', value: result.toString(), line: 2, language: 'javascript' },
     ],
     annotations: [],
     callStack: [],
