@@ -28,6 +28,8 @@ export interface AlgorithmStep {
   action: 'enter' | 'check' | 'return' | 'compare' | 'recurse-left' | 'recurse-right' | 'result';
   result?: boolean;
   codeLines: CodeLineMapping;
+  /** 当前主执行行（按语言）— 仅此行高亮聚焦，codeLines 用于次级弱标记 */
+  primaryLine: CodeLineMapping;
   variables: VariableState[];
   annotations: Annotation[];
   callStack: CallStackFrame[];
