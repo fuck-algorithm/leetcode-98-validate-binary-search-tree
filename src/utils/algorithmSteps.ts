@@ -37,7 +37,7 @@ export const generateAlgorithmSteps = (
     
     // 进入递归
     callStack.push({
-      functionName: 'isValidBST',
+      functionName: 'helper',
       nodeVal,
       lower: formatBound(lower),
       upper: formatBound(upper),
