@@ -56,7 +56,7 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataChange, currentData 
   return (
     <div className="data-input">
       <div className="input-row">
-        <label className="input-label">输入数据:</label>
+        <label className="input-label">输入数据 / 样例:</label>
         <input
           type="text"
           className={`input-field ${error ? 'input-error' : ''}`}
@@ -74,12 +74,7 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataChange, currentData 
         <button className="random-btn non-bst" onClick={handleRandomNonBST}>
           随机非BST
         </button>
-      </div>
-      
-      {error && <div className="error-message">{error}</div>}
-      
-      <div className="examples-row">
-        <span className="examples-label">样例:</span>
+        <span className="examples-divider">|</span>
         {dataExamples.slice(0, 5).map((example, index) => (
           <button
             key={index}
@@ -91,6 +86,8 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataChange, currentData 
           </button>
         ))}
       </div>
+
+      {error && <div className="error-message">{error}</div>}
     </div>
   );
 };

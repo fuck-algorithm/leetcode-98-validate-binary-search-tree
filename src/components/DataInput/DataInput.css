@@ -19,8 +19,8 @@
 
 .input-field {
   flex: 1;
-  min-width: 200px;
-  max-width: 400px;
+  min-width: 160px;
+  max-width: 320px;
   padding: 6px 12px;
   border: 1px solid #0f3460;
   border-radius: 4px;
@@ -85,20 +85,13 @@
   color: #ef5350;
   font-size: 12px;
   margin-top: 4px;
-  padding-left: 70px;
+  padding-left: 100px;
 }
 
-.examples-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-
-.examples-label {
-  color: #78909c;
+.examples-divider {
+  color: #37474f;
   font-size: 12px;
+  align-self: center;
 }
 
 .example-btn {
