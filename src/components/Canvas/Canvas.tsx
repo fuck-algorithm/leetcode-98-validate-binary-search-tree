@@ -4,6 +4,10 @@ import type { TreeNode, AlgorithmStep, Annotation } from '../../types';
 import { buildVisualTree, flattenVisualTree, getEdges } from '../../utils/treeUtils';
 import './Canvas.css';
 
+// 注解测量与渲染共用字体常量：测量和实际绘制必须用相同字体，否则 getBBox 宽度与渲染宽度脱钩
+const ANNOTATION_FONT_FAMILY = '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
+const ANNOTATION_FONT_SIZE = '11px';
+
 interface CanvasProps {
   treeData: TreeNode | null;
   currentStep: AlgorithmStep | null;
@@ -191,8 +195,8 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
         const measureG = annotationGroup.append('g').attr('opacity', 0).attr('class', 'measure');
         const measuredWidths = lines.map(line =>
           measureG.append('text')
-            .attr('font-size', '11px')
-            .attr('font-family', '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif')
+            .attr('font-size', ANNOTATION_FONT_SIZE)
+            .attr('font-family', ANNOTATION_FONT_FAMILY)
             .text(line)
             .node()?.getBBox().width ?? line.length * 7
         );
@@ -223,8 +227,8 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
             .attr('y', y + i * lineHeight)
             .attr('text-anchor', textAnchor)
             .attr('fill', getAnnotationTextColor(annotation.type))
-            .attr('font-size', '11px')
-            .attr('font-family', '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif')
+            .attr('font-size', ANNOTATION_FONT_SIZE)
+            .attr('font-family', ANNOTATION_FONT_FAMILY)
             .text(line);
         });
       });
