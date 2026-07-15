@@ -15,26 +15,40 @@ function App() {
   const [inputData, setInputData] = useState<(number | null)[]>(dataExamples[0].input);
   const [treeData, setTreeData] = useState<TreeNode | null>(null);
   const [steps, setSteps] = useState<AlgorithmStep[]>([]);
+  const [canvasSize, setCanvasSize] = useState<{ width: number; height: number } | null>(null);
   const [playbackState, setPlaybackState] = useState<PlaybackState>({
     isPlaying: false,
     currentStep: 0,
     totalSteps: 0,
     speed: 1,
   });
-  
+
   const playIntervalRef = useRef<number | null>(null);
 
-  // 当输入数据变化时，重新构建树和步骤
+  // 当输入数据变化时，重新构建树
   useEffect(() => {
-    // 使用 queueMicrotask 避免在 effect 中同步调用 setState
     queueMicrotask(() => {
       const tree = buildTreeFromArray(inputData);
       setTreeData(tree);
-      
-      // 生成算法步骤
-      const newSteps = generateAlgorithmSteps(tree, 600, 350);
+      setPlaybackState(prev => ({
+        ...prev,
+        currentStep: 0,
+        isPlaying: false,
+      }));
+    });
+
+    if (playIntervalRef.current) {
+      clearInterval(playIntervalRef.current);
+      playIntervalRef.current = null;
+    }
+  }, [inputData]);
+
+  // 当树或画布尺寸变化时，重新生成算法步骤（用真实尺寸）
+  useEffect(() => {
+    if (!treeData || !canvasSize) return;
+    queueMicrotask(() => {
+      const newSteps = generateAlgorithmSteps(treeData, canvasSize.width, canvasSize.height);
       setSteps(newSteps);
-      
       setPlaybackState(prev => ({
         ...prev,
         currentStep: 0,
@@ -42,13 +56,18 @@ function App() {
         isPlaying: false,
       }));
     });
-    
-    // 停止播放
-    if (playIntervalRef.current) {
-      clearInterval(playIntervalRef.current);
-      playIntervalRef.current = null;
-    }
-  }, [inputData]);
+  }, [treeData, canvasSize]);
+
+  // 画布尺寸变化回调
+  const handleDimensionsChange = useCallback((width: number, height: number) => {
+    setCanvasSize(prev => {
+      // 尺寸未变化时不触发重渲染
+      if (prev && Math.abs(prev.width - width) < 1 && Math.abs(prev.height - height) < 1) {
+        return prev;
+      }
+      return { width, height };
+    });
+  }, []);
 
   // 播放控制
   useEffect(() => {
@@ -141,7 +160,11 @@ function App() {
       
       <div className="main-content">
         <div className="canvas-section">
-          <Canvas treeData={treeData} currentStep={currentStep} />
+          <Canvas
+            treeData={treeData}
+            currentStep={currentStep}
+            onDimensionsChange={handleDimensionsChange}
+          />
         </div>
         <div className="code-section">
           <CodePanel currentStep={currentStep} />

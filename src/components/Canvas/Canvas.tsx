@@ -7,27 +7,40 @@ import './Canvas.css';
 interface CanvasProps {
   treeData: TreeNode | null;
   currentStep: AlgorithmStep | null;
+  onDimensionsChange?: (width: number, height: number) => void;
 }
 
-export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep }) => {
+export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensionsChange }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 400 });
   const [transform, setTransform] = useState({ x: 0, y: 0, k: 1 });
 
-  // 更新尺寸
+  // 更新尺寸并上报
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width, height });
+        // 过滤掉布局未完成时的 0 值
+        if (width > 0 && height > 0) {
+          setDimensions({ width, height });
+          onDimensionsChange?.(width, height);
+        }
       }
     };
 
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
+    // 监听容器尺寸变化（更精确）
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+      resizeObserver.disconnect();
+    };
+  }, [onDimensionsChange]);
 
   // 绘制树
   useEffect(() => {
