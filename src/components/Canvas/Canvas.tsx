@@ -160,21 +160,21 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
 
         let x = node.x;
         let y = node.y;
-        let textAnchor = 'middle';
+        let textAnchor: 'start' | 'middle' | 'end' = 'middle';
 
         switch (annotation.position) {
           case 'top':
-            y -= nodeRadius + 20;
+            y -= nodeRadius + 24;
             break;
           case 'bottom':
-            y += nodeRadius + 20;
+            y += nodeRadius + 24;
             break;
           case 'left':
-            x -= nodeRadius + 60;
+            x -= nodeRadius + 12;
             textAnchor = 'end';
             break;
           case 'right':
-            x += nodeRadius + 10;
+            x += nodeRadius + 12;
             textAnchor = 'start';
             break;
         }
@@ -184,9 +184,22 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
           .attr('class', `annotation annotation-${annotation.type}`);
 
         // 背景
-        const bgPadding = 6;
-        const lineHeight = 14;
-        const bgWidth = Math.max(...lines.map(l => l.length * 7)) + bgPadding * 2;
+        const bgPadding = 8;
+        const lineHeight = 16;
+
+        // 先 append 不可见文本测量真实宽度，再据之计算背景
+        const measureG = annotationGroup.append('g').attr('opacity', 0).attr('class', 'measure');
+        const measuredWidths = lines.map(line =>
+          measureG.append('text')
+            .attr('font-size', '11px')
+            .attr('font-family', '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif')
+            .text(line)
+            .node()?.getBBox().width ?? line.length * 7
+        );
+        measureG.remove();
+
+        const maxTextWidth = Math.max(...measuredWidths);
+        const bgWidth = maxTextWidth + bgPadding * 2;
         const bgHeight = lines.length * lineHeight + bgPadding * 2;
 
         let bgX = x - bgWidth / 2;
@@ -200,7 +213,9 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
           .attr('height', bgHeight)
           .attr('rx', 4)
           .attr('fill', getAnnotationBgColor(annotation.type))
-          .attr('opacity', 0.9);
+          .attr('opacity', 0.9)
+          .attr('stroke', getAnnotationBgColor(annotation.type))
+          .attr('stroke-width', 1);
 
         lines.forEach((line, i) => {
           annotationG.append('text')
@@ -209,6 +224,7 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
             .attr('text-anchor', textAnchor)
             .attr('fill', getAnnotationTextColor(annotation.type))
             .attr('font-size', '11px')
+            .attr('font-family', '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif')
             .text(line);
         });
       });
