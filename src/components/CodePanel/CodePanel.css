@@ -64,9 +64,18 @@
   transition: background 0.2s;
 }
 
-.code-line.highlighted {
-  background: rgba(79, 195, 247, 0.15);
+/* 主执行行：强高亮聚焦 */
+.code-line.primary {
+  background: rgba(79, 195, 247, 0.22);
   border-left: 3px solid #4fc3f7;
+  margin-left: -3px;
+  box-shadow: inset 0 0 0 1px rgba(79, 195, 247, 0.3);
+}
+
+/* 次级关联行：弱标记，区分主聚焦行 */
+.code-line.secondary {
+  background: rgba(79, 195, 247, 0.06);
+  border-left: 3px solid rgba(79, 195, 247, 0.4);
   margin-left: -3px;
 }
 
@@ -98,6 +107,98 @@
   background: rgba(255, 183, 77, 0.2);
   color: #ffb74d;
   border-radius: 3px;
+  font-size: 10px;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.debug-panels {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid #0f3460;
+  background: #16213e;
+  min-height: 120px;
+  max-height: 40%;
+}
+
+.debug-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.debug-panel-title {
+  color: #4fc3f7;
+  font-size: 11px;
+  font-weight: 600;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #0f3460;
+  margin-bottom: 6px;
+}
+
+.variables-list,
+.callstack-list {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.empty-hint {
+  color: #546e7a;
+  font-size: 11px;
+  padding: 4px 0;
+}
+
+.variable-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 6px;
+  background: rgba(15, 52, 96, 0.4);
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.variable-name {
+  color: #ffb74d;
+  flex-shrink: 0;
+}
+
+.variable-value {
+  color: #e0e0e0;
+  text-align: right;
+  word-break: break-all;
+}
+
+.stack-frame {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 3px;
+  border-left: 2px solid #37474f;
+}
+
+.stack-frame.stack-top {
+  background: rgba(79, 195, 247, 0.12);
+  border-left-color: #4fc3f7;
+}
+
+.frame-name {
+  color: #b39ddb;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.frame-node,
+.frame-range {
+  color: #90a4ae;
   font-size: 10px;
   font-family: 'Consolas', 'Monaco', monospace;
 }

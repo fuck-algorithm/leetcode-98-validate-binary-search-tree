@@ -234,50 +234,6 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
       });
     }
 
-    // 绘制调用栈
-    if (currentStep?.callStack && currentStep.callStack.length > 0) {
-      const stackGroup = svg.append('g')
-        .attr('class', 'call-stack')
-        .attr('transform', `translate(${width - 180}, 60)`);
-
-      stackGroup.append('text')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('fill', '#b0bec5')
-        .attr('font-size', '12px')
-        .attr('font-weight', '500')
-        .text('调用栈');
-
-      currentStep.callStack.slice().reverse().forEach((frame, i) => {
-        const frameG = stackGroup.append('g')
-          .attr('transform', `translate(0, ${20 + i * 36})`);
-
-        frameG.append('rect')
-          .attr('x', 0)
-          .attr('y', 0)
-          .attr('width', 160)
-          .attr('height', 32)
-          .attr('rx', 4)
-          .attr('fill', i === 0 ? 'rgba(79, 195, 247, 0.2)' : 'rgba(255, 255, 255, 0.05)')
-          .attr('stroke', i === 0 ? '#4fc3f7' : '#37474f')
-          .attr('stroke-width', 1);
-
-        frameG.append('text')
-          .attr('x', 8)
-          .attr('y', 13)
-          .attr('fill', '#fff')
-          .attr('font-size', '10px')
-          .text(`node: ${frame.nodeVal ?? 'null'}`);
-
-        frameG.append('text')
-          .attr('x', 8)
-          .attr('y', 25)
-          .attr('fill', '#78909c')
-          .attr('font-size', '9px')
-          .text(`(${frame.lower}, ${frame.upper})`);
-      });
-    }
-
     // 缩放行为
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.3, 3])

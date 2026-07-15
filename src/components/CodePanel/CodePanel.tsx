@@ -32,8 +32,12 @@ export const CodePanel: React.FC<CodePanelProps> = ({ currentStep }) => {
   };
 
   const codeSnippet = getCodeByLanguage(language);
-  const highlightedLines = currentStep?.codeLines[language] || [];
+  const primaryLines = currentStep?.primaryLine[language] || [];
+  const secondaryLines = (currentStep?.codeLines[language] || []).filter(
+    l => !primaryLines.includes(l)
+  );
   const variables = currentStep?.variables.filter(v => v.language === language) || [];
+  const callStack = currentStep?.callStack || [];
 
   const getVariablesForLine = (lineNumber: number): VariableState[] => {
     return variables.filter(v => v.line === lineNumber);
@@ -65,7 +69,7 @@ export const CodePanel: React.FC<CodePanelProps> = ({ currentStep }) => {
           ))}
         </div>
       </div>
-      
+
       <div className="code-content">
         <Highlight
           theme={themes.nightOwl}
@@ -76,14 +80,16 @@ export const CodePanel: React.FC<CodePanelProps> = ({ currentStep }) => {
             <pre className={className} style={{ ...style, margin: 0, padding: '12px', background: 'transparent' }}>
               {tokens.map((line, i) => {
                 const lineNumber = i + 1;
-                const isHighlighted = highlightedLines.includes(lineNumber);
+                const isPrimary = primaryLines.includes(lineNumber);
+                const isSecondary = secondaryLines.includes(lineNumber);
                 const lineVars = getVariablesForLine(lineNumber);
-                
+                const lineClassName = `code-line${isPrimary ? ' primary' : ''}${isSecondary ? ' secondary' : ''}`;
+
                 return (
                   <div
                     key={i}
                     {...getLineProps({ line })}
-                    className={`code-line ${isHighlighted ? 'highlighted' : ''}`}
+                    className={lineClassName}
                   >
                     <span className="line-number">{lineNumber}</span>
                     <span className="line-content">
@@ -106,6 +112,41 @@ export const CodePanel: React.FC<CodePanelProps> = ({ currentStep }) => {
             </pre>
           )}
         </Highlight>
+      </div>
+
+      <div className="debug-panels">
+        <div className="debug-panel variables-panel">
+          <div className="debug-panel-title">变量内存</div>
+          <div className="variables-list">
+            {variables.length === 0 ? (
+              <div className="empty-hint">当前无可追踪变量</div>
+            ) : (
+              variables.map((v, idx) => (
+                <div key={idx} className="variable-item">
+                  <span className="variable-name">{v.name}</span>
+                  <span className="variable-value">{v.value}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="debug-panel callstack-panel">
+          <div className="debug-panel-title">调用栈</div>
+          <div className="callstack-list">
+            {callStack.length === 0 ? (
+              <div className="empty-hint">栈为空</div>
+            ) : (
+              callStack.slice().reverse().map((frame, idx) => (
+                <div key={idx} className={`stack-frame ${idx === 0 ? 'stack-top' : ''}`}>
+                  <span className="frame-name">{frame.functionName}</span>
+                  <span className="frame-node">node: {frame.nodeVal ?? 'null'}</span>
+                  <span className="frame-range">({frame.lower}, {frame.upper})</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
