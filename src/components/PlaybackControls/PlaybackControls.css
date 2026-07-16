@@ -1,7 +1,7 @@
 .playback-controls {
   padding: 10px 16px;
-  background: #16213e;
-  border-top: 1px solid #0f3460;
+  background: #1e293b;
+  border-top: 1px solid #1e293b;
 }
 
 .controls-row {
@@ -23,10 +23,10 @@
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: #0f3460;
+  background: #1e293b;
   color: #4fc3f7;
   border: 1px solid #4fc3f7;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s;
@@ -34,7 +34,7 @@
 
 .control-btn:hover:not(:disabled) {
   background: #4fc3f7;
-  color: #1a1a2e;
+  color: #0f172a;
 }
 
 .control-btn:disabled {
@@ -47,12 +47,12 @@
   padding: 2px 4px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
-  color: #78909c;
+  color: #64748b;
 }
 
 .control-btn:hover:not(:disabled) .shortcut {
   background: rgba(0, 0, 0, 0.2);
-  color: #1a1a2e;
+  color: #0f172a;
 }
 
 .play-btn {
@@ -61,13 +61,13 @@
 
 .reset-btn {
   background: transparent;
-  border-color: #78909c;
-  color: #78909c;
+  border-color: #64748b;
+  color: #64748b;
 }
 
 .reset-btn:hover:not(:disabled) {
-  background: #78909c;
-  color: #1a1a2e;
+  background: #64748b;
+  color: #0f172a;
 }
 
 .step-info {
@@ -75,7 +75,7 @@
   align-items: center;
   gap: 4px;
   font-size: 14px;
-  color: #b0bec5;
+  color: #cbd5e1;
 }
 
 .current-step {
@@ -86,11 +86,11 @@
 }
 
 .step-separator {
-  color: #546e7a;
+  color: #475569;
 }
 
 .total-steps {
-  color: #78909c;
+  color: #64748b;
 }
 
 .speed-control {
@@ -100,7 +100,7 @@
 }
 
 .speed-label {
-  color: #78909c;
+  color: #64748b;
   font-size: 12px;
 }
 
@@ -112,8 +112,8 @@
 .speed-btn {
   padding: 4px 8px;
   background: transparent;
-  color: #78909c;
-  border: 1px solid #37474f;
+  color: #64748b;
+  border: 1px solid #334155;
   border-radius: 4px;
   cursor: pointer;
   font-size: 11px;
@@ -127,7 +127,7 @@
 
 .speed-btn.active {
   background: #4fc3f7;
-  color: #1a1a2e;
+  color: #0f172a;
   border-color: #4fc3f7;
 }
 
@@ -140,14 +140,14 @@
 .progress-track {
   position: relative;
   height: 8px;
-  background: #37474f;
+  background: #334155;
   border-radius: 4px;
   overflow: visible;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4fc3f7, #66bb6a);
+  background: #4fc3f7;
   border-radius: 4px;
   transition: width 0.1s ease;
 }

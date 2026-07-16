@@ -1,7 +1,7 @@
 .data-input {
   padding: 8px 16px;
-  background: #16213e;
-  border-bottom: 1px solid #0f3460;
+  background: #1e293b;
+  border-bottom: 1px solid #1e293b;
 }
 
 .input-row {
@@ -12,7 +12,7 @@
 }
 
 .input-label {
-  color: #b0bec5;
+  color: #cbd5e1;
   font-size: 13px;
   white-space: nowrap;
 }
@@ -22,9 +22,9 @@
   min-width: 160px;
   max-width: 320px;
   padding: 6px 12px;
-  border: 1px solid #0f3460;
+  border: 1px solid #1e293b;
   border-radius: 4px;
-  background: #1a1a2e;
+  background: #0f172a;
   color: #fff;
   font-size: 13px;
   font-family: 'Consolas', 'Monaco', monospace;
@@ -42,7 +42,7 @@
 .submit-btn {
   padding: 6px 16px;
   background: #4fc3f7;
-  color: #1a1a2e;
+  color: #0f172a;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -57,7 +57,7 @@
 
 .random-btn {
   padding: 6px 12px;
-  background: #0f3460;
+  background: #1e293b;
   color: #4fc3f7;
   border: 1px solid #4fc3f7;
   border-radius: 4px;
@@ -68,7 +68,7 @@
 
 .random-btn:hover {
   background: #4fc3f7;
-  color: #1a1a2e;
+  color: #0f172a;
 }
 
 .random-btn.non-bst {
@@ -78,7 +78,7 @@
 
 .random-btn.non-bst:hover {
   background: #ffb74d;
-  color: #1a1a2e;
+  color: #0f172a;
 }
 
 .error-message {
@@ -89,7 +89,7 @@
 }
 
 .examples-divider {
-  color: #37474f;
+  color: #334155;
   font-size: 12px;
   align-self: center;
 }
@@ -97,8 +97,8 @@
 .example-btn {
   padding: 4px 10px;
   background: transparent;
-  color: #90a4ae;
-  border: 1px solid #37474f;
+  color: #94a3b8;
+  border: 1px solid #334155;
   border-radius: 4px;
   cursor: pointer;
   font-size: 11px;
@@ -111,7 +111,7 @@
 }
 
 .example-btn.active {
-  background: #0f3460;
+  background: #1e293b;
   border-color: #4fc3f7;
   color: #4fc3f7;
 }

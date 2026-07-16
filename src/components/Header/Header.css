@@ -3,8 +3,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-bottom: 1px solid #0f3460;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
   height: 48px;
   box-sizing: border-box;
 }
@@ -58,21 +58,22 @@
   color: #4fc3f7;
 }
 
-.thoughts-btn {
-  background: #0f3460;
-  color: #4fc3f7;
-  border: 1px solid #4fc3f7;
+.header-btn {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
   padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
-  transition: all 0.2s;
+  transition: all 0.15s;
   white-space: nowrap;
 }
 
-.thoughts-btn:hover {
-  background: #4fc3f7;
-  color: #1a1a2e;
+.header-btn:hover {
+  background: #334155;
+  border-color: #4fc3f7;
+  color: #4fc3f7;
 }
 
 .github-link {
@@ -115,14 +116,14 @@
 }
 
 .modal-content {
-  background: #1a1a2e;
-  border-radius: 8px;
+  background: #0f172a;
+  border-radius: 4px;
   padding: 24px;
   max-width: 700px;
   max-height: 80vh;
   overflow-y: auto;
   position: relative;
-  border: 1px solid #0f3460;
+  border: 1px solid #1e293b;
 }
 
 .modal-close {
@@ -143,7 +144,7 @@
 }
 
 .thoughts-content {
-  color: #e0e0e0;
+  color: #cbd5e1;
   line-height: 1.6;
 }
 
