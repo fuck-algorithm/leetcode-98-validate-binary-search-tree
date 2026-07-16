@@ -54,6 +54,8 @@ export const getNodeCount = (node: TreeNode | null): number => {
 };
 
 // 构建可视化树（包含位置信息）
+// 坐标算法：叶子按序铺开，内部节点取子树中点；y 按深度均匀分布
+// padding 留出节点半径(24)+标注空间，确保不溢出画布
 export const buildVisualTree = (
   root: TreeNode | null,
   width: number,
@@ -61,33 +63,46 @@ export const buildVisualTree = (
   showNullNodes: boolean = true
 ): VisualNode | null => {
   if (!root) return null;
-  
+
+  const padding = 40;
+  const usableWidth = Math.max(width - padding * 2, 80);
   const treeHeight = getTreeHeight(root);
-  const levelHeight = height / (treeHeight + 1);
-  
+  // 每层高度，最深节点 y = treeHeight * levelHeight，不超过 height - padding
+  const levelHeight = treeHeight > 0 ? Math.max((height - padding * 2) / treeHeight, 40) : 0;
+
   let nodeId = 0;
-  
+
+  // 计算子树宽度（叶子=1，内部=左右子树宽度之和）
+  const subtreeWidth = (node: TreeNode | null, depth: number): number => {
+    if (!node) {
+      // null 节点在显示时占 1 宽度，且不深入超过 treeHeight+1 层
+      if (showNullNodes && depth <= treeHeight) return 1;
+      return 0;
+    }
+    const lw = subtreeWidth(node.left, depth + 1);
+    const rw = subtreeWidth(node.right, depth + 1);
+    return lw + rw || 1; // 叶子节点（无子节点显示）宽度为 1
+  };
+
+  const totalWidth = subtreeWidth(root, 0) || 1;
+  const xUnit = usableWidth / totalWidth;
+
   const buildNode = (
     node: TreeNode | null,
     depth: number,
-    left: number,
-    right: number,
+    leftX: number,
     parent: VisualNode | null,
     parentHasThisChild: boolean = true
   ): VisualNode | null => {
-    // 如果不显示NULL节点，且当前节点为空，则返回null
     if (!node && !showNullNodes) return null;
-    
-    // 如果当前节点为空，且父节点没有这个子节点（即不需要显示NULL占位符），则返回null
-    // 只有当父节点存在且该位置确实需要显示NULL时才创建NULL节点
     if (!node && !parentHasThisChild) return null;
-    
-    // 如果节点为空且深度超过树高度，不再创建更深层的NULL节点
-    if (!node && depth > treeHeight) return null;
-    
-    const x = (left + right) / 2;
-    const y = (depth + 1) * levelHeight;
-    
+    if (!node && depth > treeHeight + 1) return null;
+
+    const sw = subtreeWidth(node, depth) || 1;
+    // 当前节点子树占据 [leftX, leftX + sw*xUnit] 区间，节点居中
+    const x = leftX + (sw * xUnit) / 2 + padding;
+    const y = depth * levelHeight + padding;
+
     const visualNode: VisualNode = {
       id: `node-${nodeId++}`,
       val: node ? node.val : null,
@@ -99,18 +114,17 @@ export const buildVisualTree = (
       isNull: !node,
       depth,
     };
-    
+
     if (node) {
-      // 对于实际存在的节点，总是尝试创建其子节点（包括NULL子节点）
-      // 只要showNullNodes为true，就应该显示NULL子节点
-      visualNode.left = buildNode(node.left, depth + 1, left, x, visualNode, true);
-      visualNode.right = buildNode(node.right, depth + 1, x, right, visualNode, true);
+      const lw = subtreeWidth(node.left, depth + 1);
+      visualNode.left = buildNode(node.left, depth + 1, leftX, visualNode, true);
+      visualNode.right = buildNode(node.right, depth + 1, leftX + lw * xUnit, visualNode, true);
     }
-    
+
     return visualNode;
   };
-  
-  return buildNode(root, 0, 0, width, null, true);
+
+  return buildNode(root, 0, 0, null, true);
 };
 
 // 获取所有节点（扁平化）
