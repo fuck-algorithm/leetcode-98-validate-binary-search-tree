@@ -1,0 +1,21 @@
+/* src/components/ProblemDescription/ProblemDescription.css */
+.modal-title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #2a3a5c;
+}
+
+.problem-content {
+  color: #e0e0e0;
+  line-height: 1.7;
+}
+
+.problem-content pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  margin: 0;
+  font-size: 14px;
+}
