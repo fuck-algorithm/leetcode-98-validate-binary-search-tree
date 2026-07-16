@@ -69,20 +69,29 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left + transform.x}, ${margin.top + transform.y}) scale(${transform.k})`);
 
-    // 定义箭头标记
-    svg.append('defs').append('marker')
-      .attr('id', 'arrowhead')
-      .attr('viewBox', '-0 -5 10 10')
-      .attr('refX', 8)
-      .attr('refY', 0)
-      .attr('orient', 'auto')
-      .attr('markerWidth', 6)
-      .attr('markerHeight', 6)
-      .append('path')
-      .attr('d', 'M 0,-5 L 10,0 L 0,5')
-      .attr('fill', '#4fc3f7');
+    // 定义多种箭头标记
+    const defs = svg.append('defs');
+    const arrowColors: Record<string, string> = {
+      'arrow-default': '#4fc3f7',
+      'arrow-left': '#ffb74d',
+      'arrow-right': '#81c784',
+      'arrow-fail': '#ef5350',
+    };
+    Object.entries(arrowColors).forEach(([id, color]) => {
+      defs.append('marker')
+        .attr('id', id)
+        .attr('viewBox', '-0 -5 10 10')
+        .attr('refX', 8)
+        .attr('refY', 0)
+        .attr('orient', 'auto')
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .append('path')
+        .attr('d', 'M 0,-5 L 10,0 L 0,5')
+        .attr('fill', color);
+    });
 
-    // 绘制边
+    // 绘制边（按是否为当前步骤路径上色，null 边虚线）
     g.selectAll('.edge')
       .data(edges)
       .enter()
@@ -92,12 +101,20 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
       .attr('y1', d => d.source.y)
       .attr('x2', d => d.target.x)
       .attr('y2', d => d.target.y)
-      .attr('stroke', d => d.target.isNull ? '#37474f' : '#4fc3f7')
-      .attr('stroke-width', 2)
-      .attr('stroke-dasharray', d => d.target.isNull ? '4,4' : 'none');
+      .attr('stroke', d => {
+        if (d.target.isNull) return '#37474f';
+        if (d.target.id === currentStep?.nodeId) return '#ffb74d';
+        return '#4fc3f7';
+      })
+      .attr('stroke-width', d => d.target.id === currentStep?.nodeId ? 3 : 2)
+      .attr('stroke-dasharray', d => d.target.isNull ? '4,4' : 'none')
+      .attr('marker-end', d => d.target.isNull ? '' : 'url(#arrow-default)');
 
     // 节点半径
     const nodeRadius = 24;
+
+    // 按深度调色板（扁平化配色）
+    const depthColors = ['#4fc3f7', '#81c784', '#ffb74d', '#ba68c8', '#ff8a65', '#4dd0e1'];
 
     // 绘制节点
     const nodeGroups = g.selectAll('.node')
@@ -107,7 +124,7 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
       .attr('class', d => `node ${d.isNull ? 'null-node' : ''} ${d.id === currentStep?.nodeId ? 'active' : ''}`)
       .attr('transform', d => `translate(${d.x}, ${d.y})`);
 
-    // 节点圆圈
+    // 节点圆圈（按深度上色，活动节点覆盖为状态色）
     nodeGroups.append('circle')
       .attr('r', d => d.isNull ? 12 : nodeRadius)
       .attr('fill', d => {
@@ -115,25 +132,26 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
         if (d.id === currentStep?.nodeId) {
           if (currentStep?.result === false) return '#ef5350';
           if (currentStep?.result === true) return '#66bb6a';
-          return '#4fc3f7';
+          return '#ffb74d';
         }
-        return '#1a1a2e';
+        return depthColors[d.depth % depthColors.length];
       })
       .attr('stroke', d => {
         if (d.isNull) return '#546e7a';
         if (d.id === currentStep?.nodeId) return '#fff';
-        return '#4fc3f7';
+        return '#fff';
       })
-      .attr('stroke-width', d => d.id === currentStep?.nodeId ? 3 : 2);
+      .attr('stroke-width', d => d.id === currentStep?.nodeId ? 3 : 1.5)
+      .attr('opacity', d => d.isNull ? 0.6 : 1);
 
     // 节点值
     nodeGroups.filter(d => !d.isNull)
       .append('text')
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em')
-      .attr('fill', '#fff')
+      .attr('fill', '#1a1a2e')
       .attr('font-size', '14px')
-      .attr('font-weight', '600')
+      .attr('font-weight', '700')
       .text(d => d.val?.toString() || '');
 
     // 空节点标记
@@ -141,9 +159,40 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
       .append('text')
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em')
-      .attr('fill', '#78909c')
+      .attr('fill', '#b0bec5')
       .attr('font-size', '10px')
       .text('null');
+
+    // 状态徽标：当前节点显示操作类型角标
+    if (currentStep?.nodeId) {
+      const activeNode = nodes.find(n => n.id === currentStep.nodeId);
+      if (activeNode && !activeNode.isNull) {
+        const badgeText = currentStep.action === 'check' ? '?' :
+          currentStep.action === 'result' ? (currentStep.result ? '✓' : '✗') :
+          currentStep.action === 'enter' ? '→' : '';
+        if (badgeText) {
+          nodeGroups.filter(d => d.id === currentStep.nodeId)
+            .append('circle')
+            .attr('cx', nodeRadius * 0.7)
+            .attr('cy', -nodeRadius * 0.7)
+            .attr('r', 9)
+            .attr('fill', currentStep.result === false ? '#ef5350' :
+              currentStep.result === true ? '#66bb6a' : '#fff')
+            .attr('stroke', '#1a1a2e')
+            .attr('stroke-width', 1.5);
+          nodeGroups.filter(d => d.id === currentStep.nodeId)
+            .append('text')
+            .attr('x', nodeRadius * 0.7)
+            .attr('y', -nodeRadius * 0.7)
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.35em')
+            .attr('fill', currentStep.result === false ? '#fff' : '#1a1a2e')
+            .attr('font-size', '11px')
+            .attr('font-weight', '700')
+            .text(badgeText);
+        }
+      }
+    }
 
     // 绘制标注
     if (currentStep?.annotations) {
