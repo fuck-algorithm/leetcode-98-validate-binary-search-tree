@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getGitHubStars } from '../../utils/indexedDB';
 import { algorithmThoughts } from '../../data/examples';
+import { ProblemDescription } from '../ProblemDescription';
 import './Header.css';
 
 const GITHUB_OWNER = 'fuck-algorithm';
@@ -11,6 +12,7 @@ const HOT100_URL = 'https://fuck-algorithm.github.io/leetcode-hot-100/';
 export const Header: React.FC = () => {
   const [stars, setStars] = useState<number>(0);
   const [showThoughts, setShowThoughts] = useState(false);
+  const [showProblem, setShowProblem] = useState(false);
 
   useEffect(() => {
     getGitHubStars(GITHUB_OWNER, GITHUB_REPO).then(setStars);
@@ -19,18 +21,18 @@ export const Header: React.FC = () => {
   return (
     <header className="header">
       <div className="header-left">
-        <a 
-          href={HOT100_URL} 
-          target="_blank" 
+        <a
+          href={HOT100_URL}
+          target="_blank"
           rel="noopener noreferrer"
           className="back-link"
         >
           ← 返回 LeetCode Hot 100
         </a>
       </div>
-      
+
       <div className="header-center">
-        <a 
+        <a
           href={LEETCODE_URL}
           target="_blank"
           rel="noopener noreferrer"
@@ -39,15 +41,22 @@ export const Header: React.FC = () => {
           <h1 className="title">98. 验证二叉搜索树</h1>
         </a>
       </div>
-      
+
       <div className="header-right">
-        <button 
-          className="thoughts-btn"
+        <button
+          className="header-btn"
+          onClick={() => setShowProblem(true)}
+        >
+          📋 题目描述
+        </button>
+
+        <button
+          className="header-btn"
           onClick={() => setShowThoughts(true)}
         >
           💡 算法思路
         </button>
-        
+
         <a
           href={`https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`}
           target="_blank"
@@ -61,6 +70,8 @@ export const Header: React.FC = () => {
           <span className="star-count">⭐ {stars}</span>
         </a>
       </div>
+
+      <ProblemDescription isOpen={showProblem} onClose={() => setShowProblem(false)} />
 
       {showThoughts && (
         <div className="modal-overlay" onClick={() => setShowThoughts(false)}>
