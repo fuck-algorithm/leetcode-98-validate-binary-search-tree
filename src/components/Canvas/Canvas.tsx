@@ -54,29 +54,20 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
     svg.selectAll('*').remove();
 
     const { width, height } = dimensions;
-    const margin = { top: 60, right: 40, bottom: 40, left: 40 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
+    // margin 仅用于 g 容器整体偏移，padding 已在 buildVisualTree 内部处理
+    const margin = { top: 20, right: 20, bottom: 40, left: 20 };
 
-    // 构建可视化树
-    const visualRoot = buildVisualTree(treeData, innerWidth, innerHeight, true);
+    // 构建可视化树（padding 已内置，坐标在 [padding, width-padding] 区间）
+    const visualRoot = buildVisualTree(treeData, width, height, true);
     if (!visualRoot) return;
 
     const nodes = flattenVisualTree(visualRoot);
     const edges = getEdges(visualRoot);
 
-    // 计算树的实际边界，用于居中
-    const xValues = nodes.map(n => n.x);
-    const minX = Math.min(...xValues);
-    const maxX = Math.max(...xValues);
-    const treeWidth = maxX - minX;
-    
-    // 计算水平偏移量，使树居中
-    const centerOffsetX = (innerWidth - treeWidth) / 2 - minX;
-
+    // buildVisualTree 已保证节点在画布内，无需重复计算 centerOffsetX
     // 创建主容器
     const g = svg.append('g')
-      .attr('transform', `translate(${margin.left + transform.x + centerOffsetX}, ${margin.top + transform.y}) scale(${transform.k})`);
+      .attr('transform', `translate(${margin.left + transform.x}, ${margin.top + transform.y}) scale(${transform.k})`);
 
     // 定义箭头标记
     svg.append('defs').append('marker')
