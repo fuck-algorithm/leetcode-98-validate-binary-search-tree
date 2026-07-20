@@ -83,18 +83,25 @@
 /* D3 节点样式 */
 .node circle {
   transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
 }
 
 .node.active circle {
-  filter: drop-shadow(0 0 8px rgba(79, 195, 247, 0.6));
+  filter: drop-shadow(0 0 10px rgba(255, 183, 77, 0.85));
+  animation: node-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes node-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 183, 77, 0.5)); }
+  50% { filter: drop-shadow(0 0 14px rgba(255, 183, 77, 0.9)); }
 }
 
 .node.null-node circle {
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .edge {
-  transition: stroke 0.3s ease;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
 }
 
 .annotation text {

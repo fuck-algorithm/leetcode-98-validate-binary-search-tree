@@ -6,7 +6,7 @@ import './Canvas.css';
 
 // 注解测量与渲染共用字体常量：测量和实际绘制必须用相同字体，否则 getBBox 宽度与渲染宽度脱钩
 const ANNOTATION_FONT_FAMILY = '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif';
-const ANNOTATION_FONT_SIZE = '11px';
+const ANNOTATION_FONT_SIZE = '14px';
 
 interface CanvasProps {
   treeData: TreeNode | null;
@@ -150,7 +150,7 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em')
       .attr('fill', '#1a1a2e')
-      .attr('font-size', '14px')
+      .attr('font-size', '16px')
       .attr('font-weight', '700')
       .text(d => d.val?.toString() || '');
 
@@ -160,7 +160,7 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em')
       .attr('fill', '#b0bec5')
-      .attr('font-size', '10px')
+      .attr('font-size', '12px')
       .text('null');
 
     // 状态徽标：当前节点显示操作类型角标
@@ -173,21 +173,21 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
         if (badgeText) {
           nodeGroups.filter(d => d.id === currentStep.nodeId)
             .append('circle')
-            .attr('cx', nodeRadius * 0.7)
-            .attr('cy', -nodeRadius * 0.7)
-            .attr('r', 9)
+            .attr('cx', nodeRadius * 0.72)
+            .attr('cy', -nodeRadius * 0.72)
+            .attr('r', 11)
             .attr('fill', currentStep.result === false ? '#ef5350' :
               currentStep.result === true ? '#66bb6a' : '#fff')
             .attr('stroke', '#1a1a2e')
             .attr('stroke-width', 1.5);
           nodeGroups.filter(d => d.id === currentStep.nodeId)
             .append('text')
-            .attr('x', nodeRadius * 0.7)
-            .attr('y', -nodeRadius * 0.7)
+            .attr('x', nodeRadius * 0.72)
+            .attr('y', -nodeRadius * 0.72)
             .attr('text-anchor', 'middle')
             .attr('dy', '0.35em')
             .attr('fill', currentStep.result === false ? '#fff' : '#1a1a2e')
-            .attr('font-size', '11px')
+            .attr('font-size', '13px')
             .attr('font-weight', '700')
             .text(badgeText);
         }
@@ -255,11 +255,12 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
           .attr('y', y - lineHeight / 2 - bgPadding)
           .attr('width', bgWidth)
           .attr('height', bgHeight)
-          .attr('rx', 4)
+          .attr('rx', 6)
           .attr('fill', getAnnotationBgColor(annotation.type))
-          .attr('opacity', 0.9)
+          .attr('opacity', 0.95)
           .attr('stroke', getAnnotationBgColor(annotation.type))
-          .attr('stroke-width', 1);
+          .attr('stroke-width', 1)
+          .style('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))');
 
         lines.forEach((line, i) => {
           annotationG.append('text')
