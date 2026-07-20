@@ -55,12 +55,14 @@ export const getNodeCount = (node: TreeNode | null): number => {
 
 // 构建可视化树（包含位置信息）
 // 坐标算法：叶子按序铺开，内部节点取子树中点；y 按深度均匀分布
-// padding 留出节点半径(24)+标注空间，确保不溢出画布
+// nodeRadius 纳入约束：相邻节点最小间距 = nodeRadius*2 + 8，保证不重叠
+// 树过宽时按 requiredWidth 撑宽画布，超出部分用 d3 zoom 平移查看（优于重叠遮挡）
 export const buildVisualTree = (
   root: TreeNode | null,
   width: number,
   height: number,
-  showNullNodes: boolean = true
+  showNullNodes: boolean = true,
+  nodeRadius: number = 24
 ): VisualNode | null => {
   if (!root) return null;
 
@@ -69,6 +71,9 @@ export const buildVisualTree = (
   const treeHeight = getTreeHeight(root);
   // 每层高度，最深节点 y = treeHeight * levelHeight，不超过 height - padding
   const levelHeight = treeHeight > 0 ? Math.max((height - padding * 2) / treeHeight, 40) : 0;
+
+  // 相邻节点最小间距：直径 + 8px 间隙，确保叶子节点圆圈不重叠
+  const minGap = nodeRadius * 2 + 8;
 
   let nodeId = 0;
 
@@ -85,7 +90,10 @@ export const buildVisualTree = (
   };
 
   const totalWidth = subtreeWidth(root, 0) || 1;
-  const xUnit = usableWidth / totalWidth;
+  // 实际可用宽度：取画布可用宽度与「不重叠所需宽度」的较大值
+  const requiredWidth = totalWidth * minGap;
+  const effectiveWidth = Math.max(usableWidth, requiredWidth);
+  const xUnit = effectiveWidth / totalWidth;
 
   const buildNode = (
     node: TreeNode | null,

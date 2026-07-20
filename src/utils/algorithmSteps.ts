@@ -9,7 +9,7 @@ export const generateAlgorithmSteps = (
 ): AlgorithmStep[] => {
   const steps: AlgorithmStep[] = [];
   // 显示 null 节点，与 Canvas.tsx 渲染时保持一致，避免坐标布局错位
-  const visualRoot = buildVisualTree(root, canvasWidth, canvasHeight, true);
+  const visualRoot = buildVisualTree(root, canvasWidth, canvasHeight, true, 24);
   const nodeMap = new Map<number, VisualNode>();
   
   // 建立值到节点的映射

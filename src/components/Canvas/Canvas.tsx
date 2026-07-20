@@ -57,8 +57,8 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
     // margin 仅用于 g 容器整体偏移，padding 已在 buildVisualTree 内部处理
     const margin = { top: 20, right: 20, bottom: 40, left: 20 };
 
-    // 构建可视化树（padding 已内置，坐标在 [padding, width-padding] 区间）
-    const visualRoot = buildVisualTree(treeData, width, height, true);
+    // 构建可视化树（padding 已内置，坐标在 [padding, width-padding] 区间；nodeRadius 约束保证不重叠）
+    const visualRoot = buildVisualTree(treeData, width, height, true, 24);
     if (!visualRoot) return;
 
     const nodes = flattenVisualTree(visualRoot);
