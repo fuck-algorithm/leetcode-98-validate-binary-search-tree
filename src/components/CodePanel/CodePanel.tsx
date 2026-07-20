@@ -131,7 +131,7 @@ export const CodePanel: React.FC<CodePanelProps> = ({ currentStep }) => {
                 };
                 return (
                   <div key={idx} className="variable-item">
-                    <span className="variable-dot" style={{ background: varColor(v.name) }} />
+                    <span className="variable-dot" style={{ background: varColor(v.name), color: varColor(v.name) }} />
                     <span className="variable-name">{v.name}</span>
                     <span className="variable-value">{v.value}</span>
                   </div>
