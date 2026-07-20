@@ -147,13 +147,23 @@ export const CodePanel: React.FC<CodePanelProps> = ({ currentStep }) => {
             {callStack.length === 0 ? (
               <div className="empty-hint">栈为空</div>
             ) : (
-              callStack.slice().reverse().map((frame, idx) => (
-                <div key={idx} className={`stack-frame ${idx === 0 ? 'stack-top' : ''}`}>
-                  <span className="frame-name">{frame.functionName}</span>
-                  <span className="frame-node">node: {frame.nodeVal ?? 'null'}</span>
-                  <span className="frame-range">({frame.lower}, {frame.upper})</span>
-                </div>
-              ))
+              callStack.slice().reverse().map((frame, idx) => {
+                const frameNum = callStack.length - idx;
+                return (
+                  <div
+                    key={idx}
+                    className={`stack-frame ${idx === 0 ? 'stack-top' : ''}`}
+                    style={{ paddingLeft: `${8 + frame.depth * 12}px` }}
+                  >
+                    <div className="frame-head">
+                      <span className="frame-index">#{frameNum}</span>
+                      <span className="frame-name">{frame.functionName}</span>
+                    </div>
+                    <span className="frame-node">node: {frame.nodeVal ?? 'null'}</span>
+                    <span className="frame-range">({frame.lower}, {frame.upper})</span>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
