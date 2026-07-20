@@ -121,12 +121,22 @@ export const CodePanel: React.FC<CodePanelProps> = ({ currentStep }) => {
             {variables.length === 0 ? (
               <div className="empty-hint">当前无可追踪变量</div>
             ) : (
-              variables.map((v, idx) => (
-                <div key={idx} className="variable-item">
-                  <span className="variable-name">{v.name}</span>
-                  <span className="variable-value">{v.value}</span>
-                </div>
-              ))
+              variables.map((v, idx) => {
+                const varColor = (name: string): string => {
+                  if (name.startsWith('root')) return '#4fc3f7';
+                  if (name.includes('lower') || name.includes('upper')) return '#ffb74d';
+                  if (name.includes('Result')) return '#66bb6a';
+                  if (name === 'inRange') return '#ef5350';
+                  return '#94a3b8';
+                };
+                return (
+                  <div key={idx} className="variable-item">
+                    <span className="variable-dot" style={{ background: varColor(v.name) }} />
+                    <span className="variable-name">{v.name}</span>
+                    <span className="variable-value">{v.value}</span>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>

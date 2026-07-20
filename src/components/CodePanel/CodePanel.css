@@ -154,24 +154,41 @@
 
 .variable-item {
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 3px 6px;
-  background: rgba(30, 41, 59, 0.4);
-  border-radius: 3px;
-  font-size: 11px;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: rgba(30, 41, 59, 0.5);
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+  font-size: 12px;
   font-family: 'Consolas', 'Monaco', monospace;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.variable-item:hover {
+  background: rgba(79, 195, 247, 0.12);
+  transform: translateX(2px);
+}
+
+.variable-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 4px currentColor;
 }
 
 .variable-name {
   color: #ffb74d;
   flex-shrink: 0;
+  font-weight: 600;
 }
 
 .variable-value {
-  color: #cbd5e1;
+  color: #e2e8f0;
   text-align: right;
   word-break: break-all;
+  margin-left: auto;
 }
 
 .stack-frame {
