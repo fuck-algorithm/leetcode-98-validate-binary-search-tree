@@ -12,10 +12,3 @@
   color: #cbd5e1;
   line-height: 1.7;
 }
-
-.problem-content pre {
-  white-space: pre-wrap;
-  font-family: inherit;
-  margin: 0;
-  font-size: 14px;
-}

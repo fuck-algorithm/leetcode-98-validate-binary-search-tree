@@ -26,6 +26,10 @@ export interface AlgorithmStep {
   lower: number;
   upper: number;
   action: 'enter' | 'check' | 'return' | 'compare' | 'recurse-left' | 'recurse-right' | 'result';
+  operation?: 'init' | 'read' | 'compare' | 'recurse' | 'return' | 'done' | 'error';
+  narration?: string;
+  anchorIds?: string[];
+  visitedNodeIds?: string[];
   result?: boolean;
   codeLines: CodeLineMapping;
   /** 当前主执行行（按语言）— 仅此行高亮聚焦，codeLines 用于次级弱标记 */

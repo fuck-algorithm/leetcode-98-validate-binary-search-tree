@@ -4,7 +4,8 @@
 - 主结构：按层序输入重建的二叉树；节点身份由根到节点的路径（root/L/R）决定，坐标按树层和子树顺序固定。
 - 辅助状态：递归调用栈、每个递归帧的严格上下界、当前节点及本次递归结果。
 - 空子节点：在树最后一层显式绘制 null 位置；输入首项必须为整数。
-- 当前仓库仍使用 `AlgorithmStep` 的 `nodeId/action/annotations` 快照；下一轮需迁移到通用 `frame/operation/narration/anchorIds` 动画契约。
+- 当前仓库采用固定布局树快照，`AlgorithmStep` 已包含 `operation`、`narration`、`anchorIds` 与 `visitedNodeIds`；节点映射使用路径身份以避免重复值错绑。
+- 每次进入节点、范围比较、分支递归、空分支返回、短路失败和汇总返回均单独成步；失败样例 `[5,1,4,null,null,3,6]` 会在检查 4 时说明继承自根节点的下界 5。
 
 ## 布局预算
 - Header 44–52px；输入条 ≤44px；页签当前不适用；底部控制条 ≤56px。
@@ -25,9 +26,12 @@
 每个生成步骤都需要至少一个代码 anchor；焦点节点离开后应保留 visited，最终结果使用 done/error。
 
 ## 运动、色板与无障碍
-- 目标色板：idle #dde9e6、current #2f9e7d、compare #e8b04b、visited #9ad3c2、done #18765a、error #c94a4a；不使用紫色，颜色外还需徽标/描边状态。
-- 目标动效统一从 motion token 获取，最长不超过 dwell 的 55%；跳步中断现有过渡；退出使用统一淡出清理。
-- `prefers-reduced-motion: reduce` 下 JS 时长归零、CSS 动效关闭，但步骤、解说、图例与代码高亮仍更新。
+- 教学图例固定显示当前检查、已验证、范围违规和空分支；画布同步呈现允许范围、递归深度与当前帧节点。
+- 目标色板：idle #dde9e6、current #2f9e7d、compare #e8b04b、visited #9ad3c2、done #18765a、error #c94a4a；当前实现以颜色、徽标和图例共同传达状态。
+- 当前 D3 节点/边/标注使用稳定 ID keyed join，但仍未实现完整 enter/update/exit 动效、MOTION token 与打断后连续过渡。
+- `prefers-reduced-motion: reduce` 下已有 CSS 动效降级；JS 过渡当前尚未使用 motion token。
 
-## 已知差距（阻断验收）
-现有实现尚无固定操作徽标/图例/指标与 narration/anchorIds 通用字段，也没有 D3 enter/update/exit 运动 token；当前 D3 虽复用 keyed join，但坐标直接更新。必须完成渲染器拆分与覆盖测试、15 条 Playwright 验收和实际动效证据后，才可判 PASS。
+## 未完成项（阻断验收）
+- 目前仍缺少可重用的通用 `frame` 快照类型，以及 D3 enter/update/exit 平滑过渡、统一 motion token 和过渡打断恢复。
+- 当前 E2E 只有 3 条，Skill 要求的 15 条验收、1x 录屏、3x/随机跳步检查与相邻步骤位置证据尚未完成。
+- 本轮提升了逐步解说与固定教学信息，但完整 AC-023 尚未验收，因此最终状态仍为 FAIL。

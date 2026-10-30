@@ -147,10 +147,3 @@
   color: #cbd5e1;
   line-height: 1.6;
 }
-
-.thoughts-content pre {
-  white-space: pre-wrap;
-  font-family: inherit;
-  margin: 0;
-  font-size: 14px;
-}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getGitHubStars } from '../../utils/indexedDB';
-import { algorithmThoughts } from '../../data/examples';
+import { algorithmThoughts } from '../../data/algorithmThoughts';
+import { MarkdownContent } from '../MarkdownContent/MarkdownContent';
 import { ProblemDescription } from '../ProblemDescription';
 import './Header.css';
 
@@ -75,10 +76,11 @@ export const Header: React.FC = () => {
 
       {showThoughts && (
         <div className="modal-overlay" onClick={() => setShowThoughts(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowThoughts(false)}>×</button>
+          <div className="modal-content" role="dialog" aria-modal="true" aria-labelledby="thoughts-modal-title" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowThoughts(false)} aria-label="关闭算法思路">×</button>
+            <h2 className="modal-title" id="thoughts-modal-title">算法思路</h2>
             <div className="thoughts-content">
-              <pre>{algorithmThoughts}</pre>
+              <MarkdownContent content={algorithmThoughts} />
             </div>
           </div>
         </div>

@@ -66,6 +66,7 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
     if (!visualRoot) return;
 
     const nodes = flattenVisualTree(visualRoot);
+    const visitedIds = new Set(currentStep?.visitedNodeIds ?? []);
     const edges = getEdges(visualRoot);
 
     // buildVisualTree 已保证节点在画布内，无需重复计算 centerOffsetX
@@ -130,7 +131,7 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
     const nodeGroups = g.selectAll<SVGGElement, typeof nodes[number]>('.node')
       .data(nodes, d => d.id)
       .join('g')
-      .attr('class', d => `node ${d.isNull ? 'null-node' : ''} ${d.id === currentStep?.nodeId ? 'active' : ''}`)
+      .attr('class', d => `node ${d.isNull ? 'null-node' : ''} ${d.id === currentStep?.nodeId ? 'active' : ''} ${visitedIds.has(d.id) ? 'visited' : ''} ${d.id === currentStep?.nodeId && currentStep?.result === false ? 'invalid' : ''}`)
       .attr('data-node-id', d => d.id)
       .attr('transform', d => `translate(${d.x}, ${d.y})`);
 
@@ -142,11 +143,9 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
       .attr('r', d => d.isNull ? 12 : nodeRadius)
       .attr('fill', d => {
         if (d.isNull) return '#37474f';
-        if (d.id === currentStep?.nodeId) {
-          if (currentStep?.result === false) return '#ef5350';
-          if (currentStep?.result === true) return '#66bb6a';
-          return '#ffb74d';
-        }
+        if (d.id === currentStep?.nodeId && currentStep?.result === false) return '#c94a4a';
+        if (d.id === currentStep?.nodeId) return '#e8b04b';
+        if (visitedIds.has(d.id)) return '#9ad3c2';
         return depthColors[d.depth % depthColors.length];
       })
       .attr('stroke', d => {
@@ -198,8 +197,8 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
             .attr('cx', nodeRadius * 0.72)
             .attr('cy', -nodeRadius * 0.72)
             .attr('r', 11)
-            .attr('fill', currentStep.result === false ? '#ef5350' :
-              currentStep.result === true ? '#66bb6a' : '#fff')
+            .attr('fill', currentStep.result === false ? '#c94a4a' :
+              currentStep.result === true ? '#18765a' : '#fff')
             .attr('stroke', '#1a1a2e')
             .attr('stroke-width', 1.5);
           activeGroup.selectAll<SVGTextElement, typeof activeNode>('text.status-badge-label')
@@ -345,14 +344,51 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
         className="tree-canvas"
       />
       {currentStep && (
-        <div className="step-description">
-          <span className="step-number">步骤 {currentStep.id + 1}</span>
-          <span className="step-text">{currentStep.description}</span>
+        <div className="step-description" aria-live="polite">
+          <div className="step-heading">
+            <span className="step-number">步骤 {currentStep.id + 1}</span>
+            <span className="operation-badge" data-operation={currentStep.operation ?? currentStep.action}>
+              {getOperationLabel(currentStep.operation ?? currentStep.action)}
+            </span>
+            <span className="step-title">{currentStep.description}</span>
+          </div>
+          <p className="step-narration">{currentStep.narration ?? currentStep.description}</p>
+          <div className="canvas-teaching-footer">
+            <div className="canvas-legend" aria-label="节点状态图例">
+              <span><i className="legend-dot legend-current" />当前检查</span>
+              <span><i className="legend-dot legend-visited" />已验证</span>
+              <span><i className="legend-dot legend-error" />不符合范围</span>
+              <span><i className="legend-dot legend-null" />空分支</span>
+            </div>
+            <div className="canvas-metrics">
+              <span>当前范围 <b>({formatBound(currentStep.lower)}, {formatBound(currentStep.upper)})</b></span>
+              <span>递归深度 <b>{currentStep.callStack.length}</b></span>
+              <span>检查节点 <b>{currentStep.callStack.at(-1)?.nodeVal ?? 'null'}</b></span>
+            </div>
+          </div>
         </div>
       )}
     </div>
   );
 };
+
+function getOperationLabel(operation: string): string {
+  const labels: Record<string, string> = {
+    init: '初始化',
+    recurse: '进入递归',
+    compare: '范围比较',
+    error: '发现违规',
+    return: '返回结果',
+    done: '完成',
+  };
+  return labels[operation] ?? '执行步骤';
+}
+
+function formatBound(value: number): string {
+  if (value === Number.MIN_SAFE_INTEGER) return '-∞';
+  if (value === Number.MAX_SAFE_INTEGER) return '+∞';
+  return String(value);
+}
 
 function getAnnotationBgColor(type: Annotation['type']): string {
   switch (type) {

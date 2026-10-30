@@ -1,449 +1,236 @@
 import type { TreeNode, AlgorithmStep, VisualNode, CallStackFrame } from '../types';
 import { buildVisualTree } from './treeUtils';
 
-// 生成算法执行步骤
+const JAVA_LINES = { entry: [6], nil: [7, 8], check: [10, 11], left: [13], right: [14], result: [13, 14] };
+const PYTHON_LINES = { entry: [3], nil: [4, 5], check: [6, 7], left: [8], right: [9], result: [8, 9] };
+const GO_LINES = { entry: [5], nil: [6, 7], check: [9, 10], left: [12], right: [13], result: [12, 13] };
+const JS_LINES = { entry: [5], nil: [6, 7], check: [9, 10], left: [12], right: [13], result: [12, 13] };
+
+const codeMapping = (kind: keyof typeof JAVA_LINES) => ({
+  java: JAVA_LINES[kind],
+  python: PYTHON_LINES[kind],
+  golang: GO_LINES[kind],
+  javascript: JS_LINES[kind],
+});
+
+const formatBound = (value: number): string => {
+  if (value === Number.MIN_SAFE_INTEGER) return '-∞';
+  if (value === Number.MAX_SAFE_INTEGER) return '+∞';
+  return String(value);
+};
+
+const nodePathMap = (root: TreeNode | null, visualRoot: VisualNode | null) => {
+  const nodes = new Map<string, VisualNode>();
+  const walk = (node: TreeNode | null, visual: VisualNode | null, path = 'root'): void => {
+    if (visual) nodes.set(path, visual);
+    if (visual?.left || node?.left) walk(node?.left ?? null, visual?.left ?? null, `${path}-L`);
+    if (visual?.right || node?.right) walk(node?.right ?? null, visual?.right ?? null, `${path}-R`);
+  };
+  walk(root, visualRoot);
+  return nodes;
+};
+
 export const generateAlgorithmSteps = (
   root: TreeNode | null,
   canvasWidth: number,
-  canvasHeight: number
+  canvasHeight: number,
 ): AlgorithmStep[] => {
-  const steps: AlgorithmStep[] = [];
-  // 显示 null 节点，与 Canvas.tsx 渲染时保持一致，避免坐标布局错位
+  if (!root) return [];
   const visualRoot = buildVisualTree(root, canvasWidth, canvasHeight, true, 24);
-  const nodeMap = new Map<number, VisualNode>();
-  let nextVisualId = 0;
-  const assignVisualIds = (node: VisualNode | null): void => {
-    if (!node) return;
-    nodeMap.set(nextVisualId++, node);
-    assignVisualIds(node.left);
-    assignVisualIds(node.right);
-  };
-  if (visualRoot) assignVisualIds(visualRoot);
-
-  let nextInputId = 0;
-  const inputNodeMap = new Map<TreeNode, number>();
-  const assignInputIds = (node: TreeNode | null): void => {
-    if (!node) return;
-    inputNodeMap.set(node, nextInputId++);
-    assignInputIds(node.left);
-    assignInputIds(node.right);
-  };
-  assignInputIds(root);
-  
-  let stepId = 0;
+  const visualNodes = nodePathMap(root, visualRoot);
+  const steps: AlgorithmStep[] = [];
   const callStack: CallStackFrame[] = [];
-  
-  const formatBound = (val: number): string => {
-    if (val === Number.MIN_SAFE_INTEGER) return '-∞';
-    if (val === Number.MAX_SAFE_INTEGER) return '+∞';
-    return val.toString();
-  };
-  
-  const helper = (node: TreeNode | null, lower: number, upper: number, depth: number): boolean => {
-    const nodeVal = node?.val ?? null;
-    const visualId = node ? inputNodeMap.get(node) : undefined;
-    const visualNode = visualId === undefined ? null : nodeMap.get(visualId);
-    const nodeId = visualNode?.id ?? null;
-    
-    // 进入递归
-    callStack.push({
-      functionName: 'helper',
-      nodeVal,
-      lower: formatBound(lower),
-      upper: formatBound(upper),
-      depth,
-    });
-    
-    steps.push({
-      id: stepId++,
-      description: node 
-        ? `递归进入节点 ${node.val}，检查范围 (${formatBound(lower)}, ${formatBound(upper)})`
-        : `递归到空节点，返回 true`,
-      nodeId,
-      lower,
-      upper,
-      action: 'enter',
-      codeLines: {
-        java: [6],
-        python: [2, 3],
-        golang: [5],
-        javascript: [5],
-      },
-      primaryLine: {
-        java: [6],
-        python: [3],
-        golang: [5],
-        javascript: [5],
-      },
-      variables: [
-        { name: 'root', value: node ? `TreeNode(${node.val})` : 'null', line: 6, language: 'java' },
-        { name: 'lower', value: formatBound(lower), line: 6, language: 'java' },
-        { name: 'upper', value: formatBound(upper), line: 6, language: 'java' },
-        { name: 'root', value: node ? `TreeNode(${node.val})` : 'None', line: 2, language: 'python' },
-        { name: 'left', value: formatBound(lower), line: 2, language: 'python' },
-        { name: 'right', value: formatBound(upper), line: 2, language: 'python' },
-        { name: 'root', value: node ? `TreeNode(${node.val})` : 'nil', line: 5, language: 'golang' },
-        { name: 'lower', value: formatBound(lower), line: 5, language: 'golang' },
-        { name: 'upper', value: formatBound(upper), line: 5, language: 'golang' },
-        { name: 'root', value: node ? `TreeNode(${node.val})` : 'null', line: 5, language: 'javascript' },
-        { name: 'lower', value: formatBound(lower), line: 5, language: 'javascript' },
-        { name: 'upper', value: formatBound(upper), line: 5, language: 'javascript' },
-      ],
-      annotations: nodeId ? [{
-        nodeId,
-        text: `进入: (${formatBound(lower)}, ${formatBound(upper)})`,
-        position: 'top',
-        type: 'param',
-      }] : [],
-      callStack: [...callStack],
-    });
-    
-    // 空节点返回true
-    if (!node) {
-      callStack.pop();
-      steps.push({
-        id: stepId++,
-        description: '空节点，返回 true',
-        nodeId: null,
-        lower,
-        upper,
-        action: 'return',
-        result: true,
-        codeLines: {
-          java: [7, 8, 9],
-          python: [4, 5],
-          golang: [6, 7, 8],
-          javascript: [6, 7, 8],
-        },
-        primaryLine: {
-          java: [8],
-          python: [5],
-          golang: [7],
-          javascript: [7],
-        },
-        variables: [
-          { name: 'root', value: 'null', line: 7, language: 'java' },
-          { name: 'root', value: 'None', line: 4, language: 'python' },
-          { name: 'root', value: 'nil', line: 6, language: 'golang' },
-          { name: 'root', value: 'null', line: 6, language: 'javascript' },
-        ],
-        annotations: [],
-        callStack: [...callStack],
-      });
-      return true;
-    }
-    
-    // 检查当前节点值是否在范围内
-    const inRange = node.val > lower && node.val < upper;
-    
-    steps.push({
-      id: stepId++,
-      description: `检查节点 ${node.val}: ${formatBound(lower)} < ${node.val} < ${formatBound(upper)} → ${inRange ? '满足' : '不满足'}`,
-      nodeId,
-      lower,
-      upper,
-      action: 'check',
-      result: inRange,
-      codeLines: {
-        java: [10, 11, 12],
-        python: [6, 7],
-        golang: [9, 10, 11],
-        javascript: [9, 10, 11],
-      },
-      primaryLine: {
-        java: [10],
-        python: [7],
-        golang: [9],
-        javascript: [9],
-      },
-      variables: [
-        { name: 'root.val', value: node.val.toString(), line: 10, language: 'java' },
-        { name: 'lower', value: formatBound(lower), line: 10, language: 'java' },
-        { name: 'upper', value: formatBound(upper), line: 10, language: 'java' },
-        { name: 'inRange', value: inRange.toString(), line: 11, language: 'java' },
-        { name: 'x', value: node.val.toString(), line: 7, language: 'python' },
-        { name: 'root.Val', value: node.val.toString(), line: 9, language: 'golang' },
-        { name: 'lower', value: formatBound(lower), line: 9, language: 'golang' },
-        { name: 'upper', value: formatBound(upper), line: 9, language: 'golang' },
-        { name: 'inRange', value: inRange.toString(), line: 10, language: 'golang' },
-        { name: 'root.val', value: node.val.toString(), line: 9, language: 'javascript' },
-        { name: 'lower', value: formatBound(lower), line: 9, language: 'javascript' },
-        { name: 'upper', value: formatBound(upper), line: 9, language: 'javascript' },
-        { name: 'inRange', value: inRange.toString(), line: 10, language: 'javascript' },
-      ],
-      annotations: [{
-        nodeId: nodeId!,
-        text: `${formatBound(lower)} < ${node.val} < ${formatBound(upper)}\n${inRange ? '✓ 满足' : '✗ 不满足'}`,
-        position: 'right',
-        type: 'compare',
-      }],
-      callStack: [...callStack],
-    });
-    
-    if (!inRange) {
-      callStack.pop();
-      steps.push({
-        id: stepId++,
-        description: `节点 ${node.val} 不在范围内，返回 false`,
-        nodeId,
-        lower,
-        upper,
-        action: 'result',
-        result: false,
-        codeLines: {
-          java: [10, 11, 12],
-          python: [6, 7],
-          golang: [9, 10, 11],
-          javascript: [9, 10, 11],
-        },
-        primaryLine: {
-          java: [11],
-          python: [7],
-          golang: [10],
-          javascript: [10],
-        },
-        variables: [
-          { name: 'inRange', value: 'false', line: 12, language: 'java' },
-          { name: 'inRange', value: 'false', line: 10, language: 'golang' },
-          { name: 'inRange', value: 'false', line: 10, language: 'javascript' },
-        ],
-        annotations: [{
-          nodeId: nodeId!,
-          text: '返回 false',
-          position: 'bottom',
-          type: 'result',
-        }],
-        callStack: [...callStack],
-      });
-      return false;
-    }
-    
-    // 递归检查左子树
-    if (node.left) {
-      steps.push({
-        id: stepId++,
-        description: `递归检查左子树，新范围 (${formatBound(lower)}, ${node.val})`,
-        nodeId,
-        lower,
-        upper,
-        action: 'recurse-left',
-        codeLines: {
-          java: [13],
-          python: [8],
-          golang: [12],
-          javascript: [12],
-        },
-        primaryLine: {
-          java: [13],
-          python: [8],
-          golang: [12],
-          javascript: [12],
-        },
-        variables: [
-          { name: 'new_upper', value: node.val.toString(), line: 13, language: 'java' },
-          { name: 'leftResult', value: 'pending', line: 13, language: 'java' },
-          { name: 'new_upper', value: node.val.toString(), line: 12, language: 'golang' },
-          { name: 'leftResult', value: 'pending', line: 12, language: 'golang' },
-          { name: 'new_upper', value: node.val.toString(), line: 12, language: 'javascript' },
-          { name: 'leftResult', value: 'pending', line: 12, language: 'javascript' },
-        ],
-        annotations: [{
-          nodeId: nodeId!,
-          text: `→ 左子树\n上界更新为 ${node.val}`,
-          position: 'left',
-          type: 'info',
-        }],
-        callStack: [...callStack],
-      });
-    }
-    
-    const leftResult = helper(node.left, lower, node.val, depth + 1);
-    
-    if (!leftResult) {
-      callStack.pop();
-      steps.push({
-        id: stepId++,
-        description: `左子树验证失败，返回 false`,
-        nodeId,
-        lower,
-        upper,
-        action: 'result',
-        result: false,
-        codeLines: {
-          java: [13, 14],
-          python: [8, 9],
-          golang: [12, 13],
-          javascript: [12, 13],
-        },
-        primaryLine: {
-          java: [13],
-          python: [8],
-          golang: [12],
-          javascript: [12],
-        },
-        variables: [
-          { name: 'leftResult', value: 'false', line: 13, language: 'java' },
-          { name: 'leftResult', value: 'false', line: 12, language: 'golang' },
-          { name: 'leftResult', value: 'false', line: 12, language: 'javascript' },
-        ],
-        annotations: [{
-          nodeId: nodeId!,
-          text: '左子树失败\n返回 false',
-          position: 'bottom',
-          type: 'result',
-        }],
-        callStack: [...callStack],
-      });
-      return false;
-    }
-    
-    // 递归检查右子树
-    if (node.right) {
-      steps.push({
-        id: stepId++,
-        description: `递归检查右子树，新范围 (${node.val}, ${formatBound(upper)})`,
-        nodeId,
-        lower,
-        upper,
-        action: 'recurse-right',
-        codeLines: {
-          java: [14],
-          python: [9],
-          golang: [13],
-          javascript: [13],
-        },
-        primaryLine: {
-          java: [14],
-          python: [9],
-          golang: [13],
-          javascript: [13],
-        },
-        variables: [
-          { name: 'new_lower', value: node.val.toString(), line: 14, language: 'java' },
-          { name: 'rightResult', value: 'pending', line: 14, language: 'java' },
-          { name: 'new_lower', value: node.val.toString(), line: 13, language: 'golang' },
-          { name: 'rightResult', value: 'pending', line: 13, language: 'golang' },
-          { name: 'new_lower', value: node.val.toString(), line: 13, language: 'javascript' },
-          { name: 'rightResult', value: 'pending', line: 13, language: 'javascript' },
-        ],
-        annotations: [{
-          nodeId: nodeId!,
-          text: `→ 右子树\n下界更新为 ${node.val}`,
-          position: 'right',
-          type: 'info',
-        }],
-        callStack: [...callStack],
-      });
-    }
-    
-    const rightResult = helper(node.right, node.val, upper, depth + 1);
-    
-    callStack.pop();
-    
-    const finalResult = leftResult && rightResult;
-    steps.push({
-      id: stepId++,
-      description: `节点 ${node.val} 验证完成，返回 ${finalResult}`,
-      nodeId,
-      lower,
-      upper,
-      action: 'return',
-      result: finalResult,
-      codeLines: {
-        java: [13, 14],
-        python: [8, 9],
-        golang: [12, 13],
-        javascript: [12, 13],
-      },
-      primaryLine: {
-        java: [13],
-        python: [8],
-        golang: [12],
-        javascript: [12],
-      },
-      variables: [
-        { name: 'leftResult', value: leftResult.toString(), line: 13, language: 'java' },
-        { name: 'rightResult', value: rightResult.toString(), line: 14, language: 'java' },
-        { name: 'finalResult', value: finalResult.toString(), line: 13, language: 'java' },
-        { name: 'leftResult', value: leftResult.toString(), line: 12, language: 'golang' },
-        { name: 'rightResult', value: rightResult.toString(), line: 13, language: 'golang' },
-        { name: 'finalResult', value: finalResult.toString(), line: 12, language: 'golang' },
-        { name: 'leftResult', value: leftResult.toString(), line: 12, language: 'javascript' },
-        { name: 'rightResult', value: rightResult.toString(), line: 13, language: 'javascript' },
-        { name: 'finalResult', value: finalResult.toString(), line: 12, language: 'javascript' },
-      ],
-      annotations: [{
-        nodeId: nodeId!,
-        text: `返回 ${finalResult}`,
-        position: 'bottom',
-        type: 'return',
-      }],
-      callStack: [...callStack],
-    });
-    
-    return finalResult;
-  };
-  
-  // 初始步骤
-  steps.push({
+  const visitedNodeIds = new Set<string>();
+  let stepId = 0;
+
+  const addStep = (step: Omit<AlgorithmStep, 'id'>) => steps.push({
+    ...step,
+    visitedNodeIds: [...visitedNodeIds],
     id: stepId++,
-    description: '开始验证二叉搜索树，初始范围 (-∞, +∞)',
+  });
+  const variables = (node: TreeNode, lower: number, upper: number, inRange?: boolean): AlgorithmStep['variables'] => {
+    const values = [
+      { name: 'root.val', value: String(node.val), line: 10 },
+      { name: 'lower', value: formatBound(lower), line: 10 },
+      { name: 'upper', value: formatBound(upper), line: 10 },
+      ...(inRange === undefined ? [] : [{ name: 'inRange', value: String(inRange), line: 11 }]),
+    ];
+    return (['java', 'python', 'golang', 'javascript'] as const).flatMap(language => values.map(item => ({
+      ...item,
+      language,
+      line: language === 'python' ? item.line - 4 : language === 'golang' ? item.line - 1 : language === 'javascript' ? item.line - 1 : item.line,
+    })));
+  };
+
+  addStep({
+    description: '从根节点开始验证，初始范围没有上下界限制。',
     nodeId: visualRoot?.id ?? null,
     lower: Number.MIN_SAFE_INTEGER,
     upper: Number.MAX_SAFE_INTEGER,
     action: 'enter',
-    codeLines: {
-      java: [1, 2, 3],
-      python: [1, 2, 3],
-      golang: [1, 2],
-      javascript: [1, 2],
-    },
-    primaryLine: {
-      java: [3],
-      python: [2],
-      golang: [2],
-      javascript: [2],
-    },
-    variables: [
-      { name: 'root', value: 'TreeNode(root)', line: 3, language: 'java' },
-      { name: 'root', value: 'TreeNode(root)', line: 2, language: 'golang' },
-      { name: 'root', value: 'TreeNode(root)', line: 2, language: 'javascript' },
-    ],
-    annotations: [],
-    callStack: [],
+    operation: 'init',
+    narration: '根节点从 (-∞, +∞) 开始；每往下一层，祖先节点都会继续收紧允许的范围。',
+    anchorIds: ['helper-entry'],
+    codeLines: { java: [2, 3], python: [1, 2], golang: [1, 2], javascript: [1, 2] },
+    primaryLine: { java: [3], python: [2], golang: [2], javascript: [2] },
+    variables: [], annotations: [], callStack: [],
   });
-  
-  const result = helper(root, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 0);
-  
-  // 最终结果
-  steps.push({
-    id: stepId++,
-    description: `算法执行完毕，结果: ${result ? '是有效的二叉搜索树' : '不是有效的二叉搜索树'}`,
+
+  const visit = (node: TreeNode | null, lower: number, upper: number, depth: number, path: string): boolean => {
+    const visual = visualNodes.get(path);
+    const nodeId = visual?.id ?? `${path}-null`;
+    const lowerText = formatBound(lower);
+    const upperText = formatBound(upper);
+    const frame = { functionName: 'helper', nodeVal: node?.val ?? null, lower: lowerText, upper: upperText, depth };
+    callStack.push(frame);
+
+    addStep({
+      description: node
+        ? `进入${path === 'root' ? '根节点' : path.endsWith('-L') ? '左子节点' : '右子节点'} ${node.val}，继承范围 (${lowerText}, ${upperText})。`
+        : `到达 ${path.replaceAll('root', '根').replaceAll('-L', '的左').replaceAll('-R', '的右')}空位置。`,
+      nodeId,
+      lower,
+      upper,
+      action: 'enter',
+      operation: node ? 'recurse' : 'return',
+      narration: node
+        ? `因为节点必须同时遵守所有祖先的限制，所以先检查 ${node.val} 是否落在 (${lowerText}, ${upperText})。`
+        : '这里没有实际节点，不可能违反范围，因此空分支返回 true。',
+      anchorIds: ['helper-entry'],
+      visitedNodeIds: [...visitedNodeIds],
+      codeLines: codeMapping('entry'),
+      primaryLine: { java: [6], python: [3], golang: [5], javascript: [5] },
+      variables: node ? variables(node, lower, upper) : [],
+      annotations: visual ? [{ nodeId: visual.id, text: `允许范围\n(${lowerText}, ${upperText})`, position: 'top', type: 'param' }] : [],
+      callStack: [...callStack],
+    });
+
+    if (!node) {
+      callStack.pop();
+      addStep({
+        description: `空分支返回 true，不会让整棵树失效。`,
+        nodeId,
+        lower,
+        upper,
+        action: 'return',
+        operation: 'return',
+        narration: `空位置没有值可检查，所以它满足当前分支要求并向上一层返回 true。`,
+        anchorIds: ['base-case'],
+        visitedNodeIds: [...visitedNodeIds],
+        result: true,
+        codeLines: codeMapping('nil'),
+        primaryLine: { java: [8], python: [5], golang: [7], javascript: [7] },
+        variables: [], annotations: [], callStack: [...callStack],
+      });
+      return true;
+    }
+
+    const valid = node.val > lower && node.val < upper;
+    addStep({
+      description: `检查 ${lowerText} < ${node.val} < ${upperText}：${valid ? '成立' : '不成立'}。`,
+      nodeId: visual?.id ?? null,
+      lower,
+      upper,
+      action: 'check',
+      operation: valid ? 'compare' : 'error',
+      narration: valid
+        ? `比较结果成立；${node.val} 严格位于上下界之间，因此继续检查它的左右子树。`
+        : `${node.val} 没有严格落在 (${lowerText}, ${upperText}) 内；它违反了祖先限制，整棵树立即判为无效。`,
+      anchorIds: ['range-check'],
+      visitedNodeIds: [...visitedNodeIds],
+      result: valid,
+      codeLines: codeMapping('check'),
+      primaryLine: { java: [10], python: [7], golang: [9], javascript: [9] },
+      variables: variables(node, lower, upper, valid),
+      annotations: visual ? [{ nodeId: visual.id, text: `${lowerText} < ${node.val} < ${upperText}\n${valid ? '✓ 范围内' : '✗ 越界'}`, position: 'right', type: valid ? 'compare' : 'result' }] : [],
+      callStack: [...callStack],
+    });
+
+    if (!valid) {
+      if (visual) visitedNodeIds.add(visual.id);
+      callStack.pop();
+      addStep({
+        description: `节点 ${node.val} 越界，返回 false 并停止搜索。`,
+        nodeId: visual?.id ?? null,
+        lower,
+        upper,
+        action: 'result',
+        operation: 'error',
+        narration: '由于题目要求每个节点都必须满足上下界，发现一个违规节点就足以否定整棵树，无需再访问它的后代。',
+        anchorIds: ['range-check', 'return-false'],
+        visitedNodeIds: [...visitedNodeIds],
+        result: false,
+        codeLines: codeMapping('check'),
+        primaryLine: { java: [11], python: [7], golang: [10], javascript: [10] },
+        variables: variables(node, lower, upper, false),
+        annotations: visual ? [{ nodeId: visual.id, text: '违反祖先范围\n返回 false', position: 'bottom', type: 'result' }] : [],
+        callStack: [...callStack],
+      });
+      return false;
+    }
+
+    if (visual) visitedNodeIds.add(visual.id);
+    const leftResult = visit(node.left, lower, node.val, depth + 1, `${path}-L`);
+    if (!leftResult) {
+      callStack.pop();
+      addStep({
+        description: `节点 ${node.val} 的左子树返回 false，当前递归也返回 false。`,
+        nodeId: visual?.id ?? null,
+        lower,
+        upper,
+        action: 'result',
+        operation: 'return',
+        narration: '左侧已经发现违规；因为两边都必须有效，所以这里短路返回，不再检查右子树。',
+        anchorIds: ['left-recursion', 'return-false'],
+        visitedNodeIds: [...visitedNodeIds],
+        result: false,
+        codeLines: codeMapping('left'),
+        primaryLine: { java: [13], python: [8], golang: [12], javascript: [12] },
+        variables: [], annotations: [], callStack: [...callStack],
+      });
+      return false;
+    }
+
+    const rightResult = visit(node.right, node.val, upper, depth + 1, `${path}-R`);
+    callStack.pop();
+    const result = leftResult && rightResult;
+    addStep({
+      description: `节点 ${node.val} 汇总结果：左侧 ${leftResult}，右侧 ${rightResult}，所以当前子树为 ${result}。`,
+      nodeId: visual?.id ?? null,
+      lower,
+      upper,
+      action: 'return',
+      operation: 'return',
+      narration: `只有左右子树都返回 true，当前节点组成的整棵子树才是有效 BST；现在将结果交还给父节点。`,
+      anchorIds: ['left-recursion', 'right-recursion', 'return-result'],
+      visitedNodeIds: [...visitedNodeIds],
+      result,
+      codeLines: codeMapping('result'),
+      primaryLine: { java: [13], python: [8], golang: [12], javascript: [12] },
+      variables: [],
+      annotations: visual ? [{ nodeId: visual.id, text: `左 ${leftResult} / 右 ${rightResult}\n返回 ${result}`, position: 'bottom', type: 'return' }] : [],
+      callStack: [...callStack],
+    });
+    return result;
+  };
+
+  const result = visit(root, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 0, 'root');
+  addStep({
+    description: result ? '验证结束：所有节点都符合 BST 规则。' : '验证结束：发现违反 BST 规则的节点。',
     nodeId: null,
     lower: Number.MIN_SAFE_INTEGER,
     upper: Number.MAX_SAFE_INTEGER,
     action: 'result',
+    operation: 'done',
+    narration: result
+      ? '从根到每个节点的严格范围检查都通过，因此整棵树是有效的二叉搜索树。'
+      : '有节点违反了从祖先继承的严格范围，因此整棵树不是有效的二叉搜索树。',
+    anchorIds: ['return-result'],
+    visitedNodeIds: [...visitedNodeIds],
     result,
-    codeLines: {
-      java: [2, 3],
-      python: [2, 3],
-      golang: [1, 2],
-      javascript: [1, 2],
-    },
-    primaryLine: {
-      java: [3],
-      python: [2],
-      golang: [2],
-      javascript: [1],
-    },
-    variables: [
-      { name: 'result', value: result.toString(), line: 3, language: 'java' },
-      { name: 'result', value: result.toString(), line: 2, language: 'golang' },
-      { name: 'result', value: result.toString(), line: 2, language: 'javascript' },
-    ],
-    annotations: [],
-    callStack: [],
+    codeLines: { java: [3], python: [2], golang: [2], javascript: [2] },
+    primaryLine: { java: [3], python: [2], golang: [2], javascript: [2] },
+    variables: [], annotations: [], callStack: [],
   });
-  
   return steps;
 };

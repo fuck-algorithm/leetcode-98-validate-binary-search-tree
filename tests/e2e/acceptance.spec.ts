@@ -39,6 +39,22 @@ test('single-screen workspace, input validation and keyboard controls', async ({
   await expect(page.locator('.step-number')).toHaveText('步骤 1');
 });
 
+test('problem and solution dialogs render markdown structure', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /题目描述/ }).click();
+  const problemDialog = page.locator('.modal-content');
+  await expect(problemDialog.getByRole('heading', { name: /验证二叉搜索树/ })).toBeVisible();
+  await expect(problemDialog.locator('ul li')).toHaveCount(5);
+  await expect(problemDialog.locator('strong').first()).toBeVisible();
+  await problemDialog.getByRole('button', { name: '关闭题目描述' }).click();
+
+  await page.getByRole('button', { name: /算法思路/ }).click();
+  const thoughtsDialog = page.locator('.modal-content');
+  await expect(thoughtsDialog.getByRole('heading', { name: '算法思路' })).toBeVisible();
+  await expect(thoughtsDialog.getByRole('heading', { name: /为什么不能只比较父子节点/ })).toBeVisible();
+  await expect(thoughtsDialog.locator('ol li')).toHaveCount(4);
+});
+
 test('canvas keeps stable node identities when stepping and honors reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');

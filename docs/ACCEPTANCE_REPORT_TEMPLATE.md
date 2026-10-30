@@ -1,40 +1,37 @@
 # 验收报告
 
 ## 本轮结论
-**FAIL**（2026-10-30）。工程门禁已通过，但技能验收完整性不足，不能报 PASS。
+**FAIL**（2026-10-31）。Markdown 弹窗与算法教学细节已增强，但完整技能验收仍有阻断项。
 
 ## 命令证据
-- `npm run lint`：PASS，0 errors。
+- `npm run lint`：PASS。
 - `npm run type-check`：PASS。
-- `npm run build`：PASS。
-- `npm run test:coverage`：PASS，Lines 96.55%、Functions 100%、Branches 90.74%（当前统计范围仅 `src/utils/treeUtils.ts`，覆盖范围与技能要求的 features/services 尚未对齐）。
-- `npm run test:e2e`：PASS，现有 2/2 用例通过；技能规定的 15 条用例仅实现 2 条，完整验收仍 FAIL。
-- `npm run qa:full`：FAIL，首次执行因 `index.html` 的绝对入口 URL 与 GitHub Pages base path 不兼容而失败；后续恢复 Vite 标准 HTML 入口后，拆分执行的 lint/type-check/build/coverage/E2E 均 PASS。该 QA 命令本身未在修复后再次执行，需下一轮复核。
-- 构建资源：`dist/assets/qrcode-community.png` 存在。
+- `npm run build`：PASS；Vite 提示主 JS chunk 约 540KB，超过 500KB 建议值（非构建失败）。
+- `npm run test:unit`：PASS，3 个测试文件、18 项测试。
+- `npm run test:coverage`：PASS，Lines 96.55%、Functions 100%、Branches 91.66%；统计范围仍仅 `src/utils/treeUtils.ts`，与要求统计 `features/`、`services/` 不一致。
+- `npm run test:e2e`：PASS，现有 3/3 用例通过（含两个 Markdown 弹窗结构断言）；要求的 15 条用例尚未实现。
 
-## 已完成的修复
-- 严格校验数组输入的完整整数 token，拒绝 `12abc`、`1.5`；补充非法输入单测。
-- 递归步骤绑定从按值查找调整为树节点身份映射，避免重复值时指向错误节点。
-- 增加 GitHub API 非成功状态的缓存回退。
-- Pages Action 增加 lint、type-check、coverage、Playwright Chromium E2E 门禁与 lockfile fallback。
-- 群二维码复制到 `public/assets/qrcode-community.png` 并改用要求路径；README 精简到三项。
-- 添加技能要求的七份 docs；动画规格明确记录当前契约缺口和目标步骤计划。
+## 本轮变更
+- 【题目描述】与【算法思路】改为 `react-markdown` 渲染，支持 GFM、标题、列表、强调、行内代码/表格，并通过 `rehype-sanitize` 过滤原始 HTML；外链在新标签打开。
+- 算法思路改写成 Markdown 教学材料，解释只看父子关系为何不足、祖先范围如何传递、递归顺序与复杂度。
+- `AlgorithmStep` 加入 operation/narration/anchorIds/visitedNodeIds；步骤描述拆分进入、比较、空分支、越界短路、左/右递归及回溯汇总。
+- 画布增加操作徽标、独立解说、固定图例、上下界/递归深度/当前节点指标，并显示已验证节点轨迹。
+- 增加 Markdown renderer 与递归步骤单测，并补充弹窗 Playwright 验收用例。
 
 ## 未完成缺陷与分级
-- **P1 / AC-023**：步骤模型尚未具备通用 `operation/narration/anchorIds/frame` 契约；Canvas 缺固定图例、指标、motion token、分层 enter/update/exit 过渡与完整焦点轨迹。未完成。
-- **P1 / AC-001、B3**：仅有 2 条 Playwright 用例，15 条矩阵其余 13 项未落地；1920×1080 与全项 1366×768 证据不足。
-- **P1 / B7**：缺少规定的 1x 录屏、相邻步骤截图、完整视觉证据及缺陷闭环记录。
-- **P2 / AC-019、B2 范围**：覆盖率数字达门槛但统计仅含 treeUtils，尚未覆盖要求范围 `features/` 与 `services/`，动画与渲染层也缺少单测。
-- **P2**：Canvas、algorithmSteps 等文件仍超过建议行数，窄屏布局和拖拽等完整验收尚未证实。
+- **P1 / AC-023**：虽已补语义步骤、解说、anchor、visited 状态和固定教学栏，但尚缺通用 frame 数据契约、motion token 驱动的 D3 enter/update/exit 动画与可靠过渡中断清理；未能证明完整 AC-023。
+- **P1 / B3、B7**：Playwright 当前 3 条/要求 15 条；无 1x 录屏、相邻帧截图、全视口证据及跳步/3x 专项记录。
+- **P2 / AC-019**：覆盖率范围没有扩展至 features/services；渲染层动画还没有针对性单测。
+- **P2**：`algorithmSteps.ts` 与 `Canvas.tsx` 仍超过建议行数；需后续拆分。构建包有 >500KB 警告。
 
 ## B1-B7 判定
-- B1：FAIL（一票否决项/AC-023 不满足）
-- B2：局部 PASS（拆分的 lint、type-check、build、coverage、当前 E2E 均通过；修复后 `qa:full` 未重新整体执行，严格按 FAIL 记）
-- B3：FAIL（2/15 用例实现）
-- B4：FAIL（AC-001～023 未逐项验证，AC-023 阻断）
-- B5：FAIL（存在未闭环 P1）
+- B1：FAIL（AC-023 仍未满足）
+- B2：PASS（本轮 lint、type-check、build、coverage、E2E 命令均 exit 0）
+- B3：FAIL（3/15）
+- B4：FAIL（AC-001～023 未逐项全部通过）
+- B5：FAIL（仍有 P1 验收缺口）
 - B6：未评分，按 FAIL 处理
-- B7：FAIL（证据不完整）
+- B7：FAIL（视觉/录屏证据缺失）
 
 ## 最终结论
-**FAIL**。不得宣称符合 Skill 全部验收或完整部署验收通过。Pages 发布流程已配置；远端部署状态必须以 GitHub Actions 运行结果为准。
+**FAIL**。本轮实现改善了 Markdown 可读性和算法步骤可理解性，但不得宣称完整 Skill 验收通过。
