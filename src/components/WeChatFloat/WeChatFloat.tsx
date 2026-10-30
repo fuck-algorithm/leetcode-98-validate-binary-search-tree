@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './WeChatFloat.css';
 
-const WECHAT_QR_URL = '/leetcode-98-validate-binary-search-tree/wechat-qr.png';
+const WECHAT_QR_URL = `${import.meta.env.BASE_URL}assets/qrcode-community.png`;
 
 export const WeChatFloat: React.FC = () => {
   const [showQR, setShowQR] = useState(false);

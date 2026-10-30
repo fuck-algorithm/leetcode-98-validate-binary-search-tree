@@ -11,16 +11,24 @@ export const generateAlgorithmSteps = (
   // 显示 null 节点，与 Canvas.tsx 渲染时保持一致，避免坐标布局错位
   const visualRoot = buildVisualTree(root, canvasWidth, canvasHeight, true, 24);
   const nodeMap = new Map<number, VisualNode>();
-  
-  // 建立值到节点的映射
-  const buildNodeMap = (node: VisualNode | null, path: string = '') => {
-    if (!node || node.isNull) return;
-    nodeMap.set(node.val!, node);
-    if (node.left) buildNodeMap(node.left, path + 'L');
-    if (node.right) buildNodeMap(node.right, path + 'R');
+  let nextVisualId = 0;
+  const assignVisualIds = (node: VisualNode | null): void => {
+    if (!node) return;
+    nodeMap.set(nextVisualId++, node);
+    assignVisualIds(node.left);
+    assignVisualIds(node.right);
   };
-  
-  if (visualRoot) buildNodeMap(visualRoot);
+  if (visualRoot) assignVisualIds(visualRoot);
+
+  let nextInputId = 0;
+  const inputNodeMap = new Map<TreeNode, number>();
+  const assignInputIds = (node: TreeNode | null): void => {
+    if (!node) return;
+    inputNodeMap.set(node, nextInputId++);
+    assignInputIds(node.left);
+    assignInputIds(node.right);
+  };
+  assignInputIds(root);
   
   let stepId = 0;
   const callStack: CallStackFrame[] = [];
@@ -33,7 +41,8 @@ export const generateAlgorithmSteps = (
   
   const helper = (node: TreeNode | null, lower: number, upper: number, depth: number): boolean => {
     const nodeVal = node?.val ?? null;
-    const visualNode = nodeVal !== null ? nodeMap.get(nodeVal) : null;
+    const visualId = node ? inputNodeMap.get(node) : undefined;
+    const visualNode = visualId === undefined ? null : nodeMap.get(visualId);
     const nodeId = visualNode?.id ?? null;
     
     // 进入递归

@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Header } from './components/Header';
 import { DataInput } from './components/DataInput';
 import { Canvas } from './components/Canvas';
 import { CodePanel } from './components/CodePanel';
 import { PlaybackControls } from './components/PlaybackControls';
 import { WeChatFloat } from './components/WeChatFloat';
-import type { TreeNode, AlgorithmStep, PlaybackState } from './types';
+import type { PlaybackState } from './types';
 import { buildTreeFromArray } from './utils/treeUtils';
 import { generateAlgorithmSteps } from './utils/algorithmSteps';
 import { dataExamples } from './data/examples';
@@ -13,9 +13,14 @@ import './App.css';
 
 function App() {
   const [inputData, setInputData] = useState<(number | null)[]>(dataExamples[0].input);
-  const [treeData, setTreeData] = useState<TreeNode | null>(null);
-  const [steps, setSteps] = useState<AlgorithmStep[]>([]);
+  const treeData = useMemo(() => buildTreeFromArray(inputData), [inputData]);
   const [canvasSize, setCanvasSize] = useState<{ width: number; height: number } | null>(null);
+  const steps = useMemo(
+    () => treeData
+      ? generateAlgorithmSteps(treeData, canvasSize?.width ?? 800, canvasSize?.height ?? 400)
+      : [],
+    [treeData, canvasSize],
+  );
   const [playbackState, setPlaybackState] = useState<PlaybackState>({
     isPlaying: false,
     currentStep: 0,
@@ -25,38 +30,24 @@ function App() {
 
   const playIntervalRef = useRef<number | null>(null);
 
-  // 当输入数据变化时，重新构建树
   useEffect(() => {
-    queueMicrotask(() => {
-      const tree = buildTreeFromArray(inputData);
-      setTreeData(tree);
-      setPlaybackState(prev => ({
-        ...prev,
-        currentStep: 0,
-        isPlaying: false,
-      }));
-    });
+    // Keep the playback model synchronized with the generated snapshot sequence.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPlaybackState(prev => prev.totalSteps === steps.length
+      ? prev
+      : { ...prev, totalSteps: steps.length, currentStep: 0, isPlaying: false });
+  }, [steps.length]);
 
+  // 当输入数据变化时，立即停止播放并重置步骤
+  useEffect(() => {
     if (playIntervalRef.current) {
       clearInterval(playIntervalRef.current);
       playIntervalRef.current = null;
     }
+    // Reset the external playback timer and its UI state when the input snapshot changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPlaybackState(prev => ({ ...prev, currentStep: 0, isPlaying: false }));
   }, [inputData]);
-
-  // 当树或画布尺寸变化时，重新生成算法步骤（用真实尺寸）
-  useEffect(() => {
-    if (!treeData || !canvasSize) return;
-    queueMicrotask(() => {
-      const newSteps = generateAlgorithmSteps(treeData, canvasSize.width, canvasSize.height);
-      setSteps(newSteps);
-      setPlaybackState(prev => ({
-        ...prev,
-        currentStep: 0,
-        totalSteps: newSteps.length,
-        isPlaying: false,
-      }));
-    });
-  }, [treeData, canvasSize]);
 
   // 画布尺寸变化回调
   const handleDimensionsChange = useCallback((width: number, height: number) => {
@@ -151,7 +142,12 @@ function App() {
     }));
   }, []);
 
-  const currentStep = steps[playbackState.currentStep] || null;
+  const effectivePlaybackState = {
+    ...playbackState,
+    totalSteps: steps.length,
+    currentStep: Math.min(playbackState.currentStep, Math.max(0, steps.length - 1)),
+  };
+  const currentStep = steps[effectivePlaybackState.currentStep] || null;
 
   return (
     <div className="app">
@@ -172,7 +168,7 @@ function App() {
       </div>
       
       <PlaybackControls
-        playbackState={playbackState}
+        playbackState={effectivePlaybackState}
         onPlay={handlePlay}
         onPause={handlePause}
         onPrevStep={handlePrevStep}

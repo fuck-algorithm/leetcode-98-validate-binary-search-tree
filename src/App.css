@@ -8,21 +8,27 @@
 
 .main-content {
   flex: 1;
-  display: flex;
-  gap: 12px;
-  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(320px, 24vw, 400px);
+  gap: 8px;
+  padding: 8px;
   min-height: 0;
 }
 
-.canvas-section {
-  flex: 2;
+.canvas-section,
+.code-section {
   display: flex;
   min-width: 0;
+  min-height: 0;
 }
 
-.code-section {
-  flex: 1.2;
-  min-width: 380px;
-  max-width: 540px;
-  display: flex;
+@media (max-width: 1099px) {
+  .app {
+    overflow-y: auto;
+  }
+
+  .main-content {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(320px, 1fr) clamp(180px, 22vh, 240px);
+  }
 }

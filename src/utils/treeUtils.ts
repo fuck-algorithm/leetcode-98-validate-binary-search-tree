@@ -179,14 +179,20 @@ export const validateInput = (input: string): { valid: boolean; data: (number | 
     }
     
     const parts = content.split(',').map(s => s.trim());
+    if (parts.some(part => part === '')) {
+      return { valid: false, data: [], error: '数组中存在空元素' };
+    }
     const data: (number | null)[] = [];
     
     for (const part of parts) {
       if (part === 'null' || part === '') {
         data.push(null);
       } else {
-        const num = parseInt(part, 10);
-        if (isNaN(num)) {
+        if (!/^[+-]?\d+$/.test(part)) {
+          return { valid: false, data: [], error: `无效的数值: ${part}` };
+        }
+        const num = Number(part);
+        if (!Number.isSafeInteger(num)) {
           return { valid: false, data: [], error: `无效的数值: ${part}` };
         }
         // 检查范围
@@ -240,18 +246,21 @@ export const generateRandomBST = (nodeCount: number = 7): (number | null)[] => {
 
 // 生成随机非BST（用于测试）
 export const generateRandomNonBST = (nodeCount: number = 5): (number | null)[] => {
-  const values: number[] = [];
-  for (let i = 0; i < nodeCount; i++) {
-    values.push(Math.floor(Math.random() * 100) + 1);
+  const count = Math.max(2, Math.min(10, Math.floor(nodeCount)));
+  const values = Array.from({ length: count }, (_, index) => index + 1);
+  const rootIndex = Math.floor(Math.random() * count);
+  const rootValue = values[rootIndex];
+  const childIndex = rootIndex === count - 1 ? 0 : rootIndex + 1;
+  const childValue = rootIndex === count - 1 ? values[count - 1] : values[0];
+  const result: (number | null)[] = [rootValue];
+
+  if (childIndex === 0) {
+    result.push(childValue, null);
+  } else {
+    result.push(null, childValue);
   }
-  
-  // 随机打乱
-  for (let i = values.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [values[i], values[j]] = [values[j], values[i]];
-  }
-  
-  return values;
+
+  return result;
 };
 
 // 将树转换为数组表示

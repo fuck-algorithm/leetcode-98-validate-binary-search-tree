@@ -203,8 +203,8 @@
 }
 
 .stack-frame:hover {
-  background: rgba(186, 104, 200, 0.1);
-  border-left-color: #ba68c8;
+  background: rgba(79, 195, 247, 0.1);
+  border-left-color: #4fc3f7;
 }
 
 .stack-frame.stack-top {
@@ -223,8 +223,8 @@
   display: inline-block;
   min-width: 22px;
   padding: 1px 5px;
-  background: rgba(186, 104, 200, 0.25);
-  color: #ce93d8;
+  background: rgba(79, 195, 247, 0.25);
+  color: #bae6fd;
   border-radius: 3px;
   font-size: 10px;
   font-weight: 600;
@@ -233,7 +233,7 @@
 }
 
 .frame-name {
-  color: #b39ddb;
+  color: #bae6fd;
   font-size: 12px;
   font-weight: 600;
   font-family: 'Consolas', 'Monaco', monospace;

@@ -101,20 +101,21 @@ export const getGitHubStars = async (owner: string, repo: string): Promise<numbe
   
   try {
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
-    if (response.ok) {
-      const data = await response.json();
-      const stars = data.stargazers_count || 0;
-      await saveCache(cacheKey, stars, ONE_HOUR);
-      return stars;
-    }
+    if (!response.ok) throw new Error(`GitHub API returned ${response.status}`);
+    const data = await response.json();
+    const stars = data.stargazers_count || 0;
+    await saveCache(cacheKey, stars, ONE_HOUR);
+    return stars;
   } catch {
-    // 获取失败，尝试返回旧缓存
-    const db = await getDB();
-    const result = await db.get('cache', cacheKey);
-    if (result) {
-      return result.data as number;
+    // 获取失败，尝试返回过期缓存
+    try {
+      const db = await getDB();
+      const result = await db.get('cache', cacheKey);
+      if (result) return result.data as number;
+    } catch {
+      // IndexedDB unavailable; fall through to the empty-state value.
     }
   }
-  
+
   return 0;
 };

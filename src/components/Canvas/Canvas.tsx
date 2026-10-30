@@ -48,10 +48,14 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
 
   // 绘制树
   useEffect(() => {
-    if (!svgRef.current || !treeData) return;
+    if (!svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove();
+    if (!treeData) {
+      svg.selectAll('.visualization-layer').remove();
+      svg.selectAll('defs').remove();
+      return;
+    }
 
     const { width, height } = dimensions;
     // margin 仅用于 g 容器整体偏移，padding 已在 buildVisualTree 内部处理
@@ -66,36 +70,42 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
 
     // buildVisualTree 已保证节点在画布内，无需重复计算 centerOffsetX
     // 创建主容器
-    const g = svg.append('g')
+    const g = svg.selectAll<SVGGElement, number>('.visualization-layer')
+      .data([0])
+      .join('g')
+      .attr('class', 'visualization-layer')
       .attr('transform', `translate(${margin.left + transform.x}, ${margin.top + transform.y}) scale(${transform.k})`);
 
     // 定义多种箭头标记
-    const defs = svg.append('defs');
+    const defs = svg.selectAll<SVGDefsElement, number>('defs')
+      .data([0])
+      .join('defs');
     const arrowColors: Record<string, string> = {
       'arrow-default': '#4fc3f7',
       'arrow-left': '#ffb74d',
       'arrow-right': '#81c784',
       'arrow-fail': '#ef5350',
     };
-    Object.entries(arrowColors).forEach(([id, color]) => {
-      defs.append('marker')
-        .attr('id', id)
-        .attr('viewBox', '-0 -5 10 10')
-        .attr('refX', 8)
-        .attr('refY', 0)
-        .attr('orient', 'auto')
-        .attr('markerWidth', 6)
-        .attr('markerHeight', 6)
-        .append('path')
-        .attr('d', 'M 0,-5 L 10,0 L 0,5')
-        .attr('fill', color);
-    });
+    const markers = defs.selectAll<SVGMarkerElement, [string, string]>('marker')
+      .data(Object.entries(arrowColors), ([id]) => id)
+      .join('marker')
+      .attr('id', ([id]) => id)
+      .attr('viewBox', '-0 -5 10 10')
+      .attr('refX', 8)
+      .attr('refY', 0)
+      .attr('orient', 'auto')
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 6);
+    markers.selectAll<SVGPathElement, [string, string]>('path')
+      .data(d => [d])
+      .join('path')
+      .attr('d', 'M 0,-5 L 10,0 L 0,5')
+      .attr('fill', ([, color]) => color);
 
     // 绘制边（按是否为当前步骤路径上色，null 边虚线）
-    g.selectAll('.edge')
-      .data(edges)
-      .enter()
-      .append('line')
+    g.selectAll<SVGLineElement, typeof edges[number]>('.edge')
+      .data(edges, d => `${d.source.id}-${d.target.id}`)
+      .join('line')
       .attr('class', 'edge')
       .attr('x1', d => d.source.x)
       .attr('y1', d => d.source.y)
@@ -114,18 +124,21 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
     const nodeRadius = 24;
 
     // 按深度调色板（扁平化配色）
-    const depthColors = ['#4fc3f7', '#81c784', '#ffb74d', '#ba68c8', '#ff8a65', '#4dd0e1'];
+    const depthColors = ['#4fc3f7', '#81c784', '#ffb74d', '#ff8a65', '#4dd0e1'];
 
     // 绘制节点
-    const nodeGroups = g.selectAll('.node')
-      .data(nodes)
-      .enter()
-      .append('g')
+    const nodeGroups = g.selectAll<SVGGElement, typeof nodes[number]>('.node')
+      .data(nodes, d => d.id)
+      .join('g')
       .attr('class', d => `node ${d.isNull ? 'null-node' : ''} ${d.id === currentStep?.nodeId ? 'active' : ''}`)
+      .attr('data-node-id', d => d.id)
       .attr('transform', d => `translate(${d.x}, ${d.y})`);
 
     // 节点圆圈（按深度上色，活动节点覆盖为状态色）
-    nodeGroups.append('circle')
+    nodeGroups.selectAll<SVGCircleElement, typeof nodes[number]>('circle.node-body')
+      .data(d => [d])
+      .join('circle')
+      .attr('class', 'node-body')
       .attr('r', d => d.isNull ? 12 : nodeRadius)
       .attr('fill', d => {
         if (d.isNull) return '#37474f';
@@ -146,7 +159,10 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
 
     // 节点值
     nodeGroups.filter(d => !d.isNull)
-      .append('text')
+      .selectAll<SVGTextElement, typeof nodes[number]>('text.node-value')
+      .data(d => [d])
+      .join('text')
+      .attr('class', 'node-value')
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em')
       .attr('fill', '#1a1a2e')
@@ -156,7 +172,10 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
 
     // 空节点标记
     nodeGroups.filter(d => d.isNull)
-      .append('text')
+      .selectAll<SVGTextElement, typeof nodes[number]>('text.null-label')
+      .data(d => [d])
+      .join('text')
+      .attr('class', 'null-label')
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em')
       .attr('fill', '#b0bec5')
@@ -171,8 +190,11 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
           currentStep.action === 'result' ? (currentStep.result ? '✓' : '✗') :
           currentStep.action === 'enter' ? '→' : '';
         if (badgeText) {
-          nodeGroups.filter(d => d.id === currentStep.nodeId)
-            .append('circle')
+          const activeGroup = nodeGroups.filter(d => d.id === currentStep.nodeId);
+          activeGroup.selectAll<SVGCircleElement, typeof activeNode>('circle.status-badge')
+            .data([activeNode])
+            .join('circle')
+            .attr('class', 'status-badge')
             .attr('cx', nodeRadius * 0.72)
             .attr('cy', -nodeRadius * 0.72)
             .attr('r', 11)
@@ -180,8 +202,10 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
               currentStep.result === true ? '#66bb6a' : '#fff')
             .attr('stroke', '#1a1a2e')
             .attr('stroke-width', 1.5);
-          nodeGroups.filter(d => d.id === currentStep.nodeId)
-            .append('text')
+          activeGroup.selectAll<SVGTextElement, typeof activeNode>('text.status-badge-label')
+            .data([activeNode])
+            .join('text')
+            .attr('class', 'status-badge-label')
             .attr('x', nodeRadius * 0.72)
             .attr('y', -nodeRadius * 0.72)
             .attr('text-anchor', 'middle')
@@ -193,12 +217,28 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
         }
       }
     }
+    nodeGroups.filter(d => d.id !== currentStep?.nodeId)
+      .selectAll('.status-badge, .status-badge-label')
+      .remove();
 
     // 绘制标注
-    if (currentStep?.annotations) {
-      const annotationGroup = g.append('g').attr('class', 'annotations');
-      
-      currentStep.annotations.forEach(annotation => {
+    const annotationGroup = g.selectAll<SVGGElement, number>('.annotations')
+      .data([0])
+      .join('g')
+      .attr('class', 'annotations');
+    const annotationItems = currentStep?.annotations ?? [];
+    const annotationGroups = annotationGroup
+      .selectAll<SVGGElement, Annotation>('.annotation')
+      .data(annotationItems, d => d.nodeId)
+      .join(
+        enter => enter.append('g').attr('class', d => `annotation annotation-${d.type}`),
+        update => update.attr('class', d => `annotation annotation-${d.type}`),
+        exit => exit.remove(),
+      );
+
+    annotationGroups.each(function(annotation) {
+        const annotationG = d3.select(this);
+        annotationG.selectAll('rect, text').remove();
         const node = nodes.find(n => n.id === annotation.nodeId);
         if (!node) return;
 
@@ -224,9 +264,6 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
         }
 
         const lines = annotation.text.split('\n');
-        const annotationG = annotationGroup.append('g')
-          .attr('class', `annotation annotation-${annotation.type}`);
-
         // 背景
         const bgPadding = 8;
         const lineHeight = 16;
@@ -273,7 +310,6 @@ export const Canvas: React.FC<CanvasProps> = ({ treeData, currentStep, onDimensi
             .text(line);
         });
       });
-    }
 
     // 缩放行为
     const zoom = d3.zoom<SVGSVGElement, unknown>()
@@ -323,7 +359,7 @@ function getAnnotationBgColor(type: Annotation['type']): string {
     case 'compare': return 'rgba(255, 183, 77, 0.9)';
     case 'result': return 'rgba(102, 187, 106, 0.9)';
     case 'param': return 'rgba(79, 195, 247, 0.9)';
-    case 'return': return 'rgba(186, 104, 200, 0.9)';
+    case 'return': return 'rgba(79, 195, 247, 0.9)';
     default: return 'rgba(96, 125, 139, 0.9)';
   }
 }

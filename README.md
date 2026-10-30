@@ -1,14 +1,5 @@
-# 98. 验证二叉搜索树 - 算法可视化
+# 98. 验证二叉搜索树
 
-LeetCode 第98题「验证二叉搜索树」的算法可视化演示。
+递归追踪上下界变化，直观理解二叉搜索树的验证过程。
 
-## 在线演示
-
-👉 [点击查看在线演示](https://fuck-algorithm.github.io/leetcode-98-validate-binary-search-tree/)
-
-## 本地运行
-
-```bash
-npm install
-npm run dev
-```
+[在线演示](https://fuck-algorithm.github.io/leetcode-98-validate-binary-search-tree/)

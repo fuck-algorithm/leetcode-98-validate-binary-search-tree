@@ -17,6 +17,12 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataChange, currentData 
     setError(null);
   };
 
+  const handleExampleClick = (data: (number | null)[]) => {
+    setInputValue(JSON.stringify(data));
+    onDataChange(data);
+    setError(null);
+  }
+
   const handleSubmit = () => {
     const result = validateInput(inputValue);
     if (result.valid) {
@@ -31,12 +37,6 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataChange, currentData 
     if (e.key === 'Enter') {
       handleSubmit();
     }
-  };
-
-  const handleExampleClick = (data: (number | null)[]) => {
-    setInputValue(JSON.stringify(data));
-    onDataChange(data);
-    setError(null);
   };
 
   const handleRandomBST = () => {
@@ -75,9 +75,9 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataChange, currentData 
           随机非BST
         </button>
         <span className="examples-divider">|</span>
-        {dataExamples.slice(0, 5).map((example, index) => (
+        {dataExamples.slice(0, 5).map(example => (
           <button
-            key={index}
+            key={example.name}
             className={`example-btn ${JSON.stringify(currentData) === JSON.stringify(example.input) ? 'active' : ''}`}
             onClick={() => handleExampleClick(example.input)}
             title={`预期结果: ${example.expected}`}

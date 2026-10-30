@@ -156,12 +156,6 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
           </button>
         </div>
 
-        <div className="step-info">
-          <span className="current-step">{playbackState.currentStep + 1}</span>
-          <span className="step-separator">/</span>
-          <span className="total-steps">{playbackState.totalSteps}</span>
-        </div>
-
         <div className="speed-control">
           <span className="speed-label">速度:</span>
           <div className="speed-buttons">
@@ -176,26 +170,32 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             ))}
           </div>
         </div>
-      </div>
 
-      <div
-        className="progress-bar"
-        ref={progressRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      >
-        <div className="progress-track">
-          <div
-            className="progress-fill"
-            style={{ width: `${progress}%` }}
-          />
-          <div
-            className="progress-handle"
-            style={{ left: `${progress}%` }}
-          />
+        <div className="progress-bar"
+          ref={progressRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          role="slider"
+          aria-label="演示进度"
+          aria-valuemin={1}
+          aria-valuemax={playbackState.totalSteps}
+          aria-valuenow={playbackState.currentStep + 1}
+          tabIndex={0}
+        >
+          <div className="progress-track">
+            <div className="progress-fill" style={{ width: `${progress}%` }} />
+            <div className="progress-handle" style={{ left: `${progress}%` }} />
+          </div>
+        </div>
+
+        <div className="step-info">
+          <span className="current-step">{playbackState.currentStep + 1}</span>
+          <span className="step-separator">/</span>
+          <span className="total-steps">{playbackState.totalSteps}</span>
         </div>
       </div>
+
     </div>
   );
 };
